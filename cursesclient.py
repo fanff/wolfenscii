@@ -12,8 +12,7 @@ from twisted.internet import reactor,task
 from twisted.internet.protocol import ClientFactory
 from twisted.python import log
 
-from lib import libVect
-from lib.libVect import Vect,WallVect,RectWall,WallSet
+from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet
 from math import pi
 class TextTooLongError(Exception):
     pass
@@ -28,8 +27,8 @@ class CursesStdIO:
 
     def doRead(self):
         """called when input is ready"""
-
-    def logPrefix(self): return 'CursesClient'
+    def logPrefix(self): 
+        return 'CursesClient'
 
 
 class GameBoard():
