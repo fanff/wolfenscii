@@ -31,6 +31,12 @@ class CursesStdIO:
         return 'CursesClient'
 
 
+class Pixel():
+    char = " "
+    style = 1
+
+
+
 class GameBoard():
     playerPos = Vect(0.0,0.0)
     WallTexture("W",5)
@@ -73,10 +79,11 @@ class EngineOptions():
 
 ENGINEOPTION = EngineOptions()
 class ClearCanvas():
+    clearPixer = Pixel()
     def update(self,canvas):
         for roid,ro in enumerate(canvas):
             for j,jch in enumerate(ro):
-                canvas[roid][j] = Pixel()
+                canvas[roid][j].char = self.clearPixer.char
 
 
 class SceneLayer():
@@ -94,7 +101,8 @@ class SceneLayer():
         self.debug.setText("Scene.angleStep","%s"%angleStep)
         
         colHeight = len(canvas)
-
+        
+        startT = time.time()
         for colToRender in range(colsCount):
             angleDeg = (float(colToRender) - float(colsCount)/2.0 ) * angleStep
             angleRAD = ((self.gb.playerAngle+angleDeg)* 2 * pi)/ 360.0
@@ -159,6 +167,7 @@ class SceneLayer():
                     pix.char = colContent[lineid] if lineid < colSize else " "
                     pix.style= 5
 
+        self.debug.setText("Scene.renderTime","%s"%((time.time()-startT)*1000))
         self.debug.setText("Scene.angleMax","%s"%angleRAD)
         
 
@@ -177,23 +186,17 @@ class DebugLayer():
         lineID = 0
         for key in sorted(self.debugLines.keys()):
             for chaID, cha in  enumerate(key):
-                p = Pixel()
-                p.char = cha
-                p.style=2
-                canvas[lineID][chaID] = p
+                subpix = canvas[lineID][chaID]
+                subpix.char = cha
+                subpix.style = 2
             lineID+=1
             for chaID, cha in  enumerate("  %s"%self.debugLines[key]):
-                p = Pixel()
-                p.char = cha
-                p.style=2
-                canvas[lineID][chaID] = p
+                subpix = canvas[lineID][chaID]
+                subpix.char = cha
+                subpix.style = 2
 
             lineID+=1
 
-
-class Pixel():
-    char = " "
-    style = 1
 
 
 class GameState(object):
@@ -210,12 +213,15 @@ class GameState(object):
 
         
         self.layers = [ClearCanvas(),self.sceneLayer,self.debugLayer]
+        self.lastKey = ""
+        self.__populateCanvas()
+
+    def __populateCanvas(self):
 
         # populateCanvas
-        for i in range(rows):
-            self.canvas.append([ Pixel() for j in range(cols)])
+        for i in range(self.rows):
+            self.canvas.append([ Pixel() for j in range(self.cols)])
 
-        self.lastKey = ""
 
     def update(self):
         timeStart = time.time()
