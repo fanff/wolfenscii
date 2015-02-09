@@ -132,7 +132,7 @@ class SceneLayer():
                         nearestCollisionPoint = collisionPoint
                         nearestCollider = collider
                 
-                
+                shortestDistance  = max(0.001,shortestDistance)
                 magicFactor = 0.5
 
                 wallHeight = colHeight/(shortestDistance * magicFactor)
@@ -152,13 +152,12 @@ class SceneLayer():
                         else:
                             pix.char = ' '
                 else:
-                    colContent = "TOO BIG %s"%wallHeight
+                    extend = (wallHeight-colHeight)
 
-                    colSize = len(colContent)
                     for lineid,line in enumerate(canvas):
                         pix = canvas[lineid][colToRender]
-                        pix.char = colContent[lineid] if lineid < colSize else " "
-                        pix.style= 5
+                        pix.char = nearestCollider.texture.char
+                        pix.style= nearestCollider.texture.colorCode
             else:
                 colContent = "NORENDER # %s "%ray
                 colSize = len(colContent)
