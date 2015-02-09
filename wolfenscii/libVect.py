@@ -95,16 +95,23 @@ def get_line_intersection( p0_x,  p0_y,  p1_x,  p1_y,
     return False # No collision
 
 
+class WallTexture():
+
+    def __init__(self, char, colorCode):
+        self.char = char
+        self.colorCode = colorCode
+
+
 
 class WallVect(object):
     a = Vect()
     b = Vect()
     
-    char = 'W'
-    def __init__(self,a,b, char):
+    texture = WallTexture('W',3)
+    def __init__(self,a,b, texture):
         self.a = a
         self.b = b
-        self.char = char
+        self.texture = texture
     
     def __str__(self):
         return "WVect %s %s "%(self.a,self.b)
@@ -138,16 +145,16 @@ class WallSet(object):
         self.wallList.append(wallSet)
 
 class RectWall(WallSet):
-    def __init__(self,init,extend,char):
+    def __init__(self,init,extend,texture):
 
         a = init
         b = init.add( Vect(0,extend.y) ) 
         c = init.add( Vect(extend.x,extend.y) ) 
         d = init.add( Vect(extend.x,0) ) 
         self.wallList = [
-               WallVect(a,b,char), 
-               WallVect(b,c,char), 
-               WallVect(c,d,char), 
-               WallVect(d,a,char), 
+               WallVect(a,b,texture), 
+               WallVect(b,c,texture), 
+               WallVect(c,d,texture), 
+               WallVect(d,a,texture), 
         ]
-    
+

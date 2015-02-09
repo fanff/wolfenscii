@@ -12,7 +12,7 @@ from twisted.internet import reactor,task
 from twisted.internet.protocol import ClientFactory
 from twisted.python import log
 
-from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet
+from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,WallTexture
 from math import pi
 class TextTooLongError(Exception):
     pass
@@ -33,16 +33,16 @@ class CursesStdIO:
 
 class GameBoard():
     playerPos = Vect(0.0,0.0)
-
+    WallTexture("W",5)
     playerAngle = 0.0
 
-    baseWall = RectWall( Vect( -30.0,-30.0), Vect( 60.0,60.0), "W")
+    baseWall = RectWall( Vect( -30.0,-30.0), Vect( 60.0,60.0), WallTexture("W",5) )
     rootSceneNode=WallSet()
     
-    wallA = RectWall( Vect( 2.0,-2.0), Vect( 3.0,3.0), "A")
+    wallA = RectWall( Vect( 2.0,-2.0), Vect( 3.0,3.0), WallTexture("A",3))
     rootSceneNode.nest( wallA)
 
-    wallC = RectWall( Vect( 1.0,2.0), Vect( 10.0,3.0), "C")
+    wallC = RectWall( Vect( 1.0,2.0), Vect( 10.0,3.0), WallTexture("W",6))
     rootSceneNode.nest( wallC)
     rootSceneNode.nest( baseWall)
 
@@ -136,11 +136,11 @@ class SceneLayer():
 
                     for lineid,line in enumerate(canvas):
                         pix = canvas[lineid][colToRender]
-                        pix.style= 5
                         if lineid < firsttier:
                             pix.char = ' '
                         elif lineid < firsttier + wallHeight:
-                            pix.char = nearestCollider.char
+                            pix.style= nearestCollider.texture.colorCode
+                            pix.char = nearestCollider.texture.char
                         else:
                             pix.char = ' '
                 else:
@@ -267,10 +267,13 @@ class Screen(CursesStdIO):
         # create color pair's 1 and 2
         self.colorSet = []
         self.__init_pair(1, curses.COLOR_BLACK, curses.COLOR_BLACK)
-        self.__init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
-        self.__init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
         self.__init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
-        self.__init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        self.__init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        self.__init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        self.__init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+        self.__init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
+        self.__init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        self.__init_pair(8, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
         self.paintStatus(self.statusText)
         self.lastChar = "#"
