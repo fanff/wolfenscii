@@ -166,8 +166,9 @@ class SceneLayer():
                     pix = canvas[lineid][colToRender]
                     pix.char = colContent[lineid] if lineid < colSize else " "
                     pix.style= 5
-
-        self.debug.setText("Scene.renderTime","%s"%((time.time()-startT)*1000))
+        renderTime = ((time.time()-startT)*1000)
+        self.debug.setText("Scene.updateTime ms","%s"%renderTime)
+        self.debug.setText("Scene.update / s","%s"%(1000.0/renderTime))
         self.debug.setText("Scene.angleMax","%s"%angleRAD)
         
 
@@ -228,7 +229,7 @@ class GameState(object):
         for layer in self.layers:
             layer.update(self.canvas)
         
-        self.debugLayer.setText("updateTime",str(1.0/(time.time()-timeStart)))
+        self.debugLayer.setText("gs.update / s ",str(1.0/(time.time()-timeStart)))
         self.debugLayer.setText("lastKey",str(self.lastKey))
         
         return self.canvas
@@ -253,9 +254,6 @@ class GameState(object):
 
 class Screen(CursesStdIO):
     def __init__(self, stdscr):
-        self.timer = 0
-        self.statusText = "TEST CURSES APP -"
-        self.searchText = ''
         self.stdscr = stdscr
 
         # set screen attributes
@@ -265,9 +263,8 @@ class Screen(CursesStdIO):
         curses.curs_set(0)     # no annoying mouse cursor
 
         self.rows, self.cols = self.stdscr.getmaxyx()
-        self.lines = []
         
-        self.gameState = GameState(self.rows-3,self.cols)
+        self.gameState = GameState(self.rows-1,self.cols)
         curses.start_color()
 
         # create color pair's 1 and 2
@@ -281,10 +278,6 @@ class Screen(CursesStdIO):
         self.__init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
         self.__init_pair(8, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
-        self.paintStatus(self.statusText)
-        self.lastChar = "#"
-    
-    
     def __init_pair(self, key,c1,c2):
         self.colorSet.append(key)
         curses.init_pair(key, c1,c2)
@@ -292,69 +285,29 @@ class Screen(CursesStdIO):
     def connectionLost(self, reason):
         self.close()
     
-    def clearLine(self):
-        self.lines = []
-        self.redisplayLines()
 
     def redisplayLines(self):
 
-        self.stdscr.clear()
-        self.paintStatus(self.statusText)
-        
         if self.canvas != None:
-            self.lines = []
             for canvasLineKey , canvasLine in enumerate(self.canvas):
-                li = ""
                 for canvasColKey,pix in enumerate(canvasLine):
-                    li+=pix.char
-                
                     self.stdscr.addstr(canvasLineKey, canvasColKey, pix.char, 
                                    curses.color_pair(pix.style))
-                self.lines.append(li)
-
 
         self.stdscr.refresh()
 
-    def paintStatus(self, text):
-        if len(text) > self.cols: raise TextTooLongError
-
-        for colorid in self.colorSet:
-            self.stdscr.addstr(self.rows-2,colorid,str(colorid), 
-                           curses.color_pair(colorid))
-        # move cursor to input line
-        self.stdscr.move(self.rows-1, self.cols-1)
 
     def doRead(self):
         """ Input is ready! """
         curses.noecho()
-        self.timer = self.timer + 1
+        
         c = self.stdscr.getch() # read a character
+        
         self.gameState.keyEvent(c)
-        if c == curses.KEY_BACKSPACE:
-            self.searchText = self.searchText[:-1]
-
-        elif c == curses.KEY_ENTER or c == 10:
-            #self.addLine(self.searchText)
-            
-            self.stdscr.refresh()
-            self.searchText = ''
-
-        elif c == 113: # q
+        
+        if c == 113: # q
             reactor.stop()
-            
-        else:
-            #self.addLine(str(c))
-            #self.lastChar = chr(c)
-            self.searchText = ''
-            if len(self.searchText) == self.cols-2: return
-            self.searchText = self.searchText + chr(c)
 
-        self.stdscr.addstr(self.rows-1, 0, 
-                           self.searchText + (' ' * (
-                           self.cols-len(self.searchText)-2)))
-        self.stdscr.move(self.rows-1, len(self.searchText))
-        self.paintStatus(self.statusText + ' %d' % len(self.searchText))
-        self.stdscr.refresh()
 
     def close(self):
         """ clean up """
