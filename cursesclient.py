@@ -13,7 +13,9 @@ from twisted.internet.protocol import ClientFactory
 from twisted.python import log
 
 from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,WallTexture
-from math import pi
+from math import pi,sqrt
+
+
 class TextTooLongError(Exception):
     pass
 
@@ -121,18 +123,18 @@ class SceneLayer():
             
             if len(collideList) > 0:
 
-                shortestDistance = 200
+                shortestDistance = 100*100
                 nearestCollisionPoint = None
                 nearestCollider = None
                 
                 for collisionPoint , collider in collideList:
-                    dist = collisionPoint.add(pp.mul(-1.0)).norm()
+                    dist = collisionPoint.add(pp.mul(-1.0)).normsq()
                     if dist < shortestDistance:
                         shortestDistance = dist
                         nearestCollisionPoint = collisionPoint
                         nearestCollider = collider
                 
-                shortestDistance  = max(0.001,shortestDistance)
+                shortestDistance  = max(0.5,sqrt(shortestDistance))
                 magicFactor = 0.5
 
                 wallHeight = colHeight/(shortestDistance * magicFactor)
@@ -165,6 +167,10 @@ class SceneLayer():
                     pix = canvas[lineid][colToRender]
                     pix.char = colContent[lineid] if lineid < colSize else " "
                     pix.style= 5
+
+            # end for
+        
+
         renderTime = ((time.time()-startT)*1000)
         self.debug.setText("Scene.updateTime ms","%s"%renderTime)
         self.debug.setText("Scene.update / s","%s"%(1000.0/renderTime))

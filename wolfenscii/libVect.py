@@ -43,6 +43,8 @@ class Vect(object):
     
     def norm(self):
         return sqrt(self.x*self.x + self.y*self.y)
+    def normsq(self):
+        return self.x*self.x + self.y*self.y
 
 
 
