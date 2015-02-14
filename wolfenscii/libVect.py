@@ -1,5 +1,5 @@
 
-from math import cos,sin
+from math import cos,sin,floor
 from math import pi,sqrt
 
 
@@ -97,11 +97,107 @@ def get_line_intersection( p0_x,  p0_y,  p1_x,  p1_y,
     return False # No collision
 
 
-class WallTexture():
+class Pixel():
+    char = " "
+    style = 1
+
+class ColorTexture():
 
     def __init__(self, char, colorCode):
         self.char = char
         self.colorCode = colorCode
+    def getColl(self, ratio, height):
+        c = []
+        for i in range(height):
+            p = Pixel()
+            p.char = self.char
+            p.style = self.colorCode
+            c.append(p) 
+        return c
+
+class StrechedTexture():
+
+    def __init__(self, texsciiFile,):
+        self.texData = []
+         
+        
+        with open(texsciiFile,'r') as texFile:
+            buff = [line for line in texFile]     
+        try:
+            colorStep=False
+            for line, texcontent in enumerate(buff):
+                if texcontent.startswith("#char"):
+                    pass
+                elif texcontent.startswith("#color"):
+                    colorStep=True
+                    colStart = line
+                elif colorStep:
+                    # colorStep
+                    for chaidx , cha in enumerate(texcontent):
+                        if cha in [ '1','2','3','4','5','6','7','8','9','0', ]:
+                            style = int(cha)
+                            self.texData[line-colStart-1][chaidx].style = style
+
+                else:
+                    # char step
+                    pixLine = []
+                    for cha in texcontent:
+                        if cha not in [ '\n' , '\r','\t' ]:
+                            p = Pixel()
+                            p.char = cha
+                            p.style = 3
+                            pixLine.append(p)
+                    self.texData.append(pixLine)
+        except : 
+            raise Exception("error loading texData: file read error")
+        # perfom check
+        if self.texHeight() == 0:
+            raise Exception("error loading texture: no line")
+
+        lineLen = self.texWidth()
+        if lineLen == 0:
+            raise Exception("error loading texture: no column ")
+        
+        for line in self.texData:
+            if len(line) != lineLen:
+                raise Exception("error loading texture: not regular")
+                
+    def texHeight(self):
+        return len(self.texData)
+    def texWidth(self):
+        return len(self.texData[0])
+
+    def getColl(self, ratio, height):
+        if ratio < 1:
+            colidx = int(floor(self.texWidth()*ratio)) 
+        else:
+            newRatio = ratio - int(floor(ratio))
+            if newRatio == 0:
+                colidx = self.texWidth()-1
+            else:
+                colidx = int(floor(self.texWidth()*newRatio))
+
+        #print "colIdx ",colidx
+        if height > self.texHeight():
+            coll = []
+            vertFactor =self.texHeight()/ float(height) 
+            for i in range(height):
+                p = self.texData[int(i*vertFactor)][colidx]
+                coll.append(p)
+            return coll
+        else:
+            vectFactor = float(height) / float(self.texHeight())   
+            #print "vectFactor ",vectFactor
+            # render small collumn
+            coll = []
+            for i in range(height):
+                lineidx =int(round(i * vectFactor ))
+                #print "line idx",lineidx
+                coll.append( self.texData[lineidx][colidx] )
+            return coll
+
+
+
 
 
 
@@ -109,17 +205,24 @@ class WallVect(object):
     a = Vect()
     b = Vect()
     
-    texture = WallTexture('W',3)
+    texture = ColorTexture('W',3)
     def __init__(self,a,b, texture):
         self.a = a
         self.b = b
         self.texture = texture
+        self.__normsq = self.b.add(self.a.mul(-1.0)).normsq()
+        self.__norm = sqrt(self.__normsq)
     
     def __str__(self):
         return "WVect %s %s "%(self.a,self.b)
     def collide(self, otherWallVect):
         return vectIntersection(self.a,self.b,otherWallVect.a,otherWallVect.b)
+    def collisionRatio(self, collisionPoint ):
 
+        dist = collisionPoint.add(self.a.mul(-1.0)).norm()
+
+        return dist / self.__norm
+        
 class WallSet(object):
 
     wallList = []

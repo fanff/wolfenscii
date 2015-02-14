@@ -12,8 +12,8 @@ from twisted.internet import reactor,task
 from twisted.internet.protocol import ClientFactory
 from twisted.python import log
 
-from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,WallTexture
-from math import pi,sqrt
+from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,ColorTexture, Pixel,StrechedTexture
+from math import pi,sqrt,floor
 
 
 class TextTooLongError(Exception):
@@ -33,25 +33,31 @@ class CursesStdIO:
         return 'CursesClient'
 
 
-class Pixel():
-    char = " "
-    style = 1
-
 
 
 class GameBoard():
     playerPos = Vect(0.0,0.0)
-    WallTexture("W",5)
     playerAngle = 0.0
-
-    baseWall = RectWall( Vect( -30.0,-30.0), Vect( 60.0,60.0), WallTexture("W",5) )
+    
+    baseWall = RectWall( Vect( -30.0,-30.0), Vect( 60.0,60.0), ColorTexture("W",5) )
     rootSceneNode=WallSet()
     
-    wallA = RectWall( Vect( 2.0,-2.0), Vect( 3.0,3.0), WallTexture("A",3))
+    wallA = RectWall( Vect( 1.0,0.0), Vect( 1.0,1.0), StrechedTexture("wolfenscii/asset/test/tex2") )
     rootSceneNode.nest( wallA)
+    
+    wallB = RectWall( Vect( 3.0,0.0), Vect( 1.0,1.0), StrechedTexture("wolfenscii/asset/test/tex1") )
+    rootSceneNode.nest( wallB)
 
-    wallC = RectWall( Vect( 1.0,2.0), Vect( 10.0,3.0), WallTexture("W",6))
+    wallC = RectWall( Vect( 5.0,0.0), Vect( 1.0,1.0), ColorTexture("W",6))
     rootSceneNode.nest( wallC)
+    
+    wallC = RectWall( Vect( 7.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/brick1") )
+    rootSceneNode.nest( wallC)
+    
+    wallC = RectWall( Vect( -2.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/test/tex2") )
+    rootSceneNode.nest( wallC)
+    
+    
     rootSceneNode.nest( baseWall)
 
     def __init__(self,debug):
@@ -74,6 +80,18 @@ class GameBoard():
         ray.rotate_ip(self.playerAngle*2*pi/360.0)
         
         ray.mul_ip(-1)
+        self.playerPos.add_ip(ray)
+    
+    def playerStepRight(self):
+        ray = Vect()
+        ray.rotate_ip((self.playerAngle+90.0)*2*pi/360.0)
+        
+        self.playerPos.add_ip(ray)
+    
+    def playerStepLeft(self):
+        ray = Vect()
+        ray.rotate_ip((self.playerAngle-90.0)*2*pi/360.0)
+        
         self.playerPos.add_ip(ray)
 
 class EngineOptions():
@@ -137,29 +155,39 @@ class SceneLayer():
                 shortestDistance  = max(0.5,sqrt(shortestDistance))
                 magicFactor = 0.5
 
-                wallHeight = colHeight/(shortestDistance * magicFactor)
+                wallHeight = int (colHeight/(shortestDistance * magicFactor))
                 
+                # calculate the vertical collumn from texture
                 if  wallHeight < colHeight:
                     
-                    firsttier = (colHeight-wallHeight)/2
-                    
+                    firsttier = int( (colHeight-wallHeight) / 2.0) 
+
+                    # calculate ratio of Wallvect collided
+                    collisionRatio = nearestCollider.collisionRatio(nearestCollisionPoint)
+
+                    # get the collum of pixel to print 
+                    wallcoll = nearestCollider.texture.getColl( collisionRatio,int(wallHeight))
 
                     for lineid,line in enumerate(canvas):
                         pix = canvas[lineid][colToRender]
                         if lineid < firsttier:
                             pix.char = ' '
                         elif lineid < firsttier + wallHeight:
-                            pix.style= nearestCollider.texture.colorCode
-                            pix.char = nearestCollider.texture.char
+
+                            p = wallcoll[lineid-firsttier]
+                            pix.style= p.style
+                            pix.char = p.char
                         else:
                             pix.char = ' '
                 else:
                     extend = (wallHeight-colHeight)
+                    
+                    wallcoll = nearestCollider.texture.getColl( 0.1,wallHeight)
 
                     for lineid,line in enumerate(canvas):
                         pix = canvas[lineid][colToRender]
-                        pix.char = nearestCollider.texture.char
-                        pix.style= nearestCollider.texture.colorCode
+                        pix.char = wallcoll[0].char
+                        pix.style= wallcoll[0].style
             else:
                 colContent = "NORENDER # %s "%ray
                 colSize = len(colContent)
@@ -248,14 +276,18 @@ class GameState(object):
         # 108 l
         # 109 m
 
-        if key == 104:
+        if key == 104:  # h
             self.gameBoard.playerTurnLeft()
-        if key == 107: # k
+        elif key == 72: # H
+            self.gameBoard.playerStepLeft()
+        elif key in (75,107): # k
             self.gameBoard.playerFront()
-        elif key == 106: # j
+        elif key in (74, 106) : # j
             self.gameBoard.playerBack()
-        elif key == 108:
+        elif key == 108: # l
             self.gameBoard.playerTurnRight()
+        elif key == 76: # L
+            self.gameBoard.playerStepRight()
 
 class Screen(CursesStdIO):
     def __init__(self, stdscr):

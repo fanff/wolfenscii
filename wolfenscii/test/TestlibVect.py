@@ -1,9 +1,6 @@
 
 import unittest
-from lib import libVect
-
-
-#import collidepoly
+from wolfenscii import libVect
 
 class TestSequenceFunctions(unittest.TestCase):
 
@@ -60,10 +57,19 @@ class TestWallVect(unittest.TestCase):
         
         v1 = libVect.WallVect(libVect.Vect( -10,0),libVect.Vect( 10,0),'w')
         
-        #ret = v0.collide(v1)
-        #self.assertAlmostEqual( 0, ret.x)
-        #self.assertAlmostEqual( 0.0, ret.y)
+        ret = v0.collide(v1)
+        self.assertAlmostEqual( 0, ret.x)
+        self.assertAlmostEqual( 0.0, ret.y)
    
+    def test_collisionRatio(self):
+        v0 = libVect.WallVect(libVect.Vect( 0,-10),libVect.Vect( 0,10),'w')
+
+        self.assertAlmostEqual( 0.5, v0.collisionRatio( libVect.Vect(0,0) ) )
+        self.assertAlmostEqual( 0.0, v0.collisionRatio( libVect.Vect(0,-10) ) )
+        self.assertAlmostEqual( 1.0, v0.collisionRatio( libVect.Vect(0,10) ) )
+        self.assertAlmostEqual( .75, v0.collisionRatio( libVect.Vect(0,5) ) )
+        self.assertAlmostEqual( .25, v0.collisionRatio( libVect.Vect(0,-5) ) )
+        
 class testRectWall(unittest.TestCase):
 
     def test_build(self):
@@ -92,7 +98,7 @@ class testRectWall(unittest.TestCase):
 
         self.assertAlmostEqual(c.x,5)
         self.assertAlmostEqual(c.y,0)
-        self.assertEqual(colider.char , 'w')
+        self.assertEqual(colider.texture , 'w')
 
     
     def test_collideNested(self):
@@ -105,7 +111,7 @@ class testRectWall(unittest.TestCase):
         
         self.assertAlmostEqual(ret[0][0].x,5)
         self.assertAlmostEqual(ret[0][0].y,0)
-        self.assertEqual(ret[0][1].char , 'w')
+        self.assertEqual(ret[0][1].texture , 'w')
 
 
 class TestVectRotate(unittest.TestCase):
@@ -118,5 +124,103 @@ class TestVectRotate(unittest.TestCase):
         
         self.assertAlmostEqual(r.x, -1.0)
         self.assertAlmostEqual(r.y, 0.0)
+
+
+class TestStrechedTexture(unittest.TestCase):
+
+    def test_loadTexture(self):
+        tex = libVect.StrechedTexture("wolfenscii/asset/test/tex1")
+        #print tex.texData
+        
+        tex = libVect.StrechedTexture("wolfenscii/asset/test/tex2")
+        #print tex.texData
+
+    def test_renderTex1(self):
+        tex = libVect.StrechedTexture("wolfenscii/asset/test/tex1")
+
+        for i in range(15):
+            res = tex.getColl(i/10.0,1)
+            self.assertTrue(res[0].char == 'A')
+            self.assertTrue(len(res) == 1)
+    def test_renderTex1_collHeight(self):
+        tex = libVect.StrechedTexture("wolfenscii/asset/test/tex1")
+
+        res = tex.getColl(0.1,0)
+        self.assertTrue(len(res) == 0)
+
+        res = tex.getColl(0.1,1)
+        self.assertTrue(len(res) == 1)
+        for p in res:
+            self.assertEqual(p.char , 'A')
+        
+        res = tex.getColl(0.1,2)
+        self.assertTrue(len(res) == 2)
+        for p in res:
+            self.assertEqual(p.char , 'A')
+
+        res = tex.getColl(0.1,4)
+        self.assertTrue(len(res) == 4)
+        for p in res:
+            self.assertEqual(p.char , 'A')
+
+
+    def test_renderTex2(self):
+        tex = libVect.StrechedTexture("wolfenscii/asset/test/tex2")
+
+        for i in range(11):
+            ratio = i/10.0
+            #print "ratio", ratio
+
+            res = tex.getColl(ratio,1)
+            if ratio < 0.5:
+                self.assertEqual(res[0].char ,'A')
+                self.assertTrue(len(res) == 1)
+            else:
+                self.assertEqual(res[0].char ,'B')
+                self.assertTrue(len(res) == 1)
+        
+        for i in range(11):
+            ratio = i/10.0
+            #print "ratio", ratio
+
+            res = tex.getColl(ratio,2)
+            self.assertTrue(len(res) == 2)
+            if ratio < 0.5:
+                self.assertEqual(res[0].char ,'A')
+                self.assertEqual(res[1].char ,'C')
+            else:
+                self.assertEqual(res[0].char ,'B')
+                self.assertEqual(res[1].char ,'D')
+
+    def test_renderTex2_collHeight(self):
+        tex = libVect.StrechedTexture("wolfenscii/asset/test/tex2")
+
+        res = tex.getColl(0.1,0)
+        self.assertTrue(len(res) == 0)
+        
+        res = tex.getColl(0.1,1)
+        self.assertTrue(len(res) == 1)
+        self.assertEqual(res[0].char , 'A')
+
+        res = tex.getColl(0.1,2)
+        self.assertTrue(len(res) == 2)
+        self.assertEqual(res[0].char , 'A')
+        self.assertEqual(res[1].char , 'C')
+
+        
+        res = tex.getColl(0.1,3)
+        self.assertTrue(len(res) == 3)
+        self.assertEqual(res[0].char , 'A')
+        self.assertEqual(res[1].char , 'A')
+        self.assertEqual(res[2].char , 'C')
+        
+        
+        res = tex.getColl(0.1,4)
+        self.assertTrue(len(res) == 4)
+        self.assertEqual(res[0].char , 'A')
+        self.assertEqual(res[1].char , 'A')
+        self.assertEqual(res[2].char , 'C')
+        self.assertEqual(res[3].char , 'C')
 if __name__ == "__main__":
+    
     unittest.main()
