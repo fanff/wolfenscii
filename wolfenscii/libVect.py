@@ -117,8 +117,10 @@ class ColorTexture():
 
 class StrechedTexture():
 
-    def __init__(self, texsciiFile,):
+    def __init__(self, texsciiFile,strech = 1):
         self.texData = []
+
+        self.strech = strech
          
         
         with open(texsciiFile,'r') as texFile:
@@ -168,10 +170,12 @@ class StrechedTexture():
         return len(self.texData[0])
 
     def getColl(self, ratio, height):
-        if ratio < 1:
-            colidx = int(floor(self.texWidth()*ratio)) 
+
+        ratioStreched = ratio*self.strech
+        if ratioStreched < 1:
+            colidx = int(floor(self.texWidth()*ratioStreched)) 
         else:
-            newRatio = ratio - int(floor(ratio))
+            newRatio = ratioStreched - int(floor(ratioStreched))
             if newRatio == 0:
                 colidx = self.texWidth()-1
             else:

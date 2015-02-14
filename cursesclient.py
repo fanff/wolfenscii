@@ -51,10 +51,10 @@ class GameBoard():
     wallC = RectWall( Vect( 5.0,0.0), Vect( 1.0,1.0), ColorTexture("W",6))
     rootSceneNode.nest( wallC)
     
-    wallC = RectWall( Vect( 7.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/brick1") )
+    wallC = RectWall( Vect( 7.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/brick1",3.0) )
     rootSceneNode.nest( wallC)
     
-    wallC = RectWall( Vect( -2.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/test/tex2") )
+    wallC = RectWall( Vect( -2.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/test/tex2",  ) )
     rootSceneNode.nest( wallC)
     
     
