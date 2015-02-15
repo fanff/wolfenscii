@@ -221,6 +221,31 @@ class TestStrechedTexture(unittest.TestCase):
         self.assertEqual(res[1].char , 'A')
         self.assertEqual(res[2].char , 'C')
         self.assertEqual(res[3].char , 'C')
+class TestStrechedTextureTex123(unittest.TestCase):
+
+    def test_renderTex2_collHeight(self):
+        tex = libVect.StrechedTexture("wolfenscii/asset/test/tex123")
+        
+        res = tex.getColl(0.1,0)
+        self.assertTrue(len(res) == 0)
+
+        res = tex.getColl(0.1,1)
+        self.assertTrue(len(res) == 1)
+        self.assertTrue(res[0].char in ['4', '5', ])
+        
+        res = tex.getColl(0.1,2)
+        self.assertTrue(len(res) == 2)
+        self.assertEqual(res[0].char , '0')
+        self.assertEqual( ['0','5'], [ p.char for p in res] )
+        
+        res = tex.getColl(0.1,3)
+        self.assertTrue(len(res) == 3)
+        
+        res = tex.getColl(0.1,4)
+        self.assertTrue(len(res) == 4)
+        
+        res = tex.getColl(0.1,10)
+        self.assertEqual( ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] , [ p.char for p in res] )
 if __name__ == "__main__":
     
     unittest.main()

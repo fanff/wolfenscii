@@ -170,6 +170,9 @@ class StrechedTexture():
         return len(self.texData[0])
 
     def getColl(self, ratio, height):
+        
+        if height == 0:
+            return []
 
         ratioStreched = ratio*self.strech
         if ratioStreched < 1:
@@ -190,13 +193,27 @@ class StrechedTexture():
                 coll.append(p)
             return coll
         else:
-            vectFactor = float(height) / float(self.texHeight())   
-            #print "vectFactor ",vectFactor
             # render small collumn
+            if height == 1:
+                lineidx = self.texHeight() /2 
+                return [ self.texData[lineidx][colidx], ]
             coll = []
+            
+            
+            #vectFactor = float(height) / float(self.texHeight())   
+            vectFactor = int(float(self.texHeight())/ float(height))
+            #print "vectFactor ",vectFactor
+            
+            texCenter =   float(self.texHeight())/2.0
+            #print "texCenter =" ,texCenter
+            #
+            #print "height/2  =" ,  height/ 2 
+            height2 = height/2
             for i in range(height):
-                lineidx =int(round(i * vectFactor ))
-                #print "line idx",lineidx
+                lineidxFlt = ( ( i - height2 ) * vectFactor)+ texCenter
+                #print i, " -> ",lineidxFlt 
+                lineidx =int(round(lineidxFlt ))
+                #print i, " -> ",lineidx
                 coll.append( self.texData[lineidx][colidx] )
             return coll
 
