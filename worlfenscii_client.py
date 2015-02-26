@@ -210,6 +210,7 @@ class SceneLayer():
 
 class DebugLayer():
     debugLines = {}
+    muted = True
     def setText(self,sec,text):
         if sec in self.debugLines:
             self.debugLines[sec] = text
@@ -217,19 +218,20 @@ class DebugLayer():
             self.debugLines[sec] = text
 
     def update(self,canvas):
-        lineID = 0
-        for key in sorted(self.debugLines.keys()):
-            for chaID, cha in  enumerate(key):
-                subpix = canvas[lineID][chaID]
-                subpix.char = cha
-                subpix.style = 2
-            lineID+=1
-            for chaID, cha in  enumerate("  %s"%self.debugLines[key]):
-                subpix = canvas[lineID][chaID]
-                subpix.char = cha
-                subpix.style = 2
+        if not self.muted:
+            lineID = 0
+            for key in sorted(self.debugLines.keys()):
+                for chaID, cha in  enumerate(key):
+                    subpix = canvas[lineID][chaID]
+                    subpix.char = cha
+                    subpix.style = 2
+                lineID+=1
+                for chaID, cha in  enumerate("  %s"%self.debugLines[key]):
+                    subpix = canvas[lineID][chaID]
+                    subpix.char = cha
+                    subpix.style = 2
 
-            lineID+=1
+                lineID+=1
 
 
 
@@ -288,6 +290,9 @@ class GameState(object):
             self.gameBoard.playerTurnRight()
         elif key == 76: # L
             self.gameBoard.playerStepRight()
+        elif key == 100: # d
+            # stop debug
+            self.debugLayer.muted = not self.debugLayer.muted
 
 class Screen(CursesStdIO):
     def __init__(self, stdscr):
