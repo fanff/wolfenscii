@@ -278,10 +278,10 @@ class RectWall(WallSet):
         c = init.add( Vect(extend.x,extend.y) ) 
         d = init.add( Vect(extend.x,0) ) 
         self.wallList = [
-               WallVect(a,b,texturew), 
-               WallVect(b,c,textureh), 
-               WallVect(c,d,texturew), 
-               WallVect(d,a,textureh), 
+               WallVect(a,b,textureh), 
+               WallVect(b,c,texturew), 
+               WallVect(c,d,textureh), 
+               WallVect(d,a,texturew), 
         ]
 
         
