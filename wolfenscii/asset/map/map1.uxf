@@ -1,28 +1,151 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="13.2">
-  <zoom_level>9</zoom_level>
+  <zoom_level>17</zoom_level>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>117</x>
-      <y>207</y>
-      <w>81</w>
-      <h>378</h>
+      <x>51</x>
+      <y>153</y>
+      <w>34</w>
+      <h>544</h>
     </coordinates>
-    <panel_attributes>{
+    <panel_attributes>JSONSTART
+{
+"type":"RectWall",
+"texture":{
+	"tex":"wolfenscii/asset/test/tex2",
+	"wstrech":3,
+	"hstrech":1
+	}
 }</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>162</x>
-      <y>297</y>
-      <w>549</w>
-      <h>63</h>
+      <x>51</x>
+      <y>153</y>
+      <w>748</w>
+      <h>34</h>
     </coordinates>
-    <panel_attributes>{
-"tex":"tex1"
+    <panel_attributes>JSONSTART
+{
+"type":"RectWall",
+"texture":{
+	"tex":"wolfenscii/asset/test/tex1",
+	"wstrech":3,
+	"hstrech":1
+	}
+}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>85</x>
+      <y>187</y>
+      <w>34</w>
+      <h>34</h>
+    </coordinates>
+    <panel_attributes>
+
+ 
+bg=red
+JSONSTART
+
+{"type":"playerStart",
+"rotate":0.0}
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>986</x>
+      <y>0</y>
+      <w>238</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>Note..
+bg=blue
+
+JSONSTART
+{"type":"note"}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>765</x>
+      <y>153</y>
+      <w>34</w>
+      <h>272</h>
+    </coordinates>
+    <panel_attributes>JSONSTART
+{
+"type":"RectWall",
+"texture":{
+	"tex":"wolfenscii/asset/test/tex2",
+	"wstrech":3,
+	"hstrech":8
+	}
+}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>765</x>
+      <y>425</y>
+      <w>34</w>
+      <h>272</h>
+    </coordinates>
+    <panel_attributes>JSONSTART
+{
+"type":"RectWall",
+"texture":{
+	"tex":"wolfenscii/asset/test/tex2",
+	"wstrech":3,
+	"hstrech":8
+	}
+}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>51</x>
+      <y>663</y>
+      <w>748</w>
+      <h>34</h>
+    </coordinates>
+    <panel_attributes>JSONSTART
+{
+"type":"RectWall",
+"texture":{
+	"tex":"wolfenscii/asset/test/tex1",
+	"wstrech":3,
+	"hstrech":1
+	}
+}</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>408</x>
+      <y>374</y>
+      <w>68</w>
+      <h>68</h>
+    </coordinates>
+    <panel_attributes>JSONSTART
+{
+"type":"RectWall",
+"texture":{
+	"tex":"wolfenscii/asset/tex/Red3",
+	"wstrech":1,
+	"hstrech":1
+	}
 }</panel_attributes>
     <additional_attributes/>
   </element>

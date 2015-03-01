@@ -2,4 +2,9 @@ from  wolfenscii  import wap
 
 if __name__ == "__main__":
     
-    wap.readMap('wolfenscii/asset/testUmlet.uxf')
+    res =   wap.readMap('wolfenscii/asset/map/map1.uxf')
+    print res
+    rootNode = wap.buildRootNode(res)
+
+
+

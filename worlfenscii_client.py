@@ -14,7 +14,7 @@ from twisted.python import log
 
 from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,ColorTexture, Pixel,StrechedTexture
 from math import pi,sqrt,floor
-
+from wolfenscii import wap
 
 class TextTooLongError(Exception):
     pass
@@ -39,29 +39,14 @@ class GameBoard():
     playerPos = Vect(0.0,0.0)
     playerAngle = 0.0
     
-    baseWall = RectWall( Vect( -30.0,-30.0), Vect( 60.0,60.0), ColorTexture("W",5) )
-    rootSceneNode=WallSet()
-    
-    wallA = RectWall( Vect( 1.0,0.0), Vect( 1.0,1.0), StrechedTexture("wolfenscii/asset/test/tex2") )
-    rootSceneNode.nest( wallA)
-    
-    wallB = RectWall( Vect( 3.0,0.0), Vect( 1.0,1.0), StrechedTexture("wolfenscii/asset/test/tex1") )
-    rootSceneNode.nest( wallB)
-
-    wallC = RectWall( Vect( 5.0,0.0), Vect( 1.0,1.0), ColorTexture("W",6))
-    rootSceneNode.nest( wallC)
-    
-    wallC = RectWall( Vect( 7.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/brick1",3.0) )
-    rootSceneNode.nest( wallC)
-    
-    wallC = RectWall( Vect( -2.0,0.0), Vect( 1.0,3.0), StrechedTexture("wolfenscii/asset/test/tex2",  ) )
-    rootSceneNode.nest( wallC)
-    
-    
-    rootSceneNode.nest( baseWall)
+    rootSceneNode=None
 
     def __init__(self,debug):
         self.debug = debug
+        res = wap.readMap('wolfenscii/asset/map/map1.uxf')
+        
+        
+        self.rootSceneNode,self.playerPos,self.playerAngle =wap.buildRootNode(res)
     
     def playerTurnRight(self):
         self.playerAngle+=2.0
@@ -98,6 +83,8 @@ class EngineOptions():
     FOV = 90.0
 
 ENGINEOPTION = EngineOptions()
+
+
 class ClearCanvas():
     clearPixer = Pixel()
     def update(self,canvas):
@@ -260,6 +247,11 @@ class GameState(object):
 
 
     def update(self):
+        """
+
+        Call every layer to fill the canvas.
+
+        """
         timeStart = time.time()
         for layer in self.layers:
             layer.update(self.canvas)
@@ -270,6 +262,11 @@ class GameState(object):
         return self.canvas
     
     def keyEvent(self,key):
+        """
+        Dispatch key pressed as an action
+
+        """
+
         self.lastKey = key
         # 104 h
         # 105 i

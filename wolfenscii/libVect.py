@@ -271,16 +271,17 @@ class WallSet(object):
         self.wallList.append(wallSet)
 
 class RectWall(WallSet):
-    def __init__(self,init,extend,texture):
+    def __init__(self,init,extend,texturew,textureh):
 
         a = init
         b = init.add( Vect(0,extend.y) ) 
         c = init.add( Vect(extend.x,extend.y) ) 
         d = init.add( Vect(extend.x,0) ) 
         self.wallList = [
-               WallVect(a,b,texture), 
-               WallVect(b,c,texture), 
-               WallVect(c,d,texture), 
-               WallVect(d,a,texture), 
+               WallVect(a,b,texturew), 
+               WallVect(b,c,textureh), 
+               WallVect(c,d,texturew), 
+               WallVect(d,a,textureh), 
         ]
 
+        
