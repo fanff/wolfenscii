@@ -12,7 +12,7 @@ def extractInfo(element):
     attribStr = element.find("panel_attributes").text
     attribStr = attribStr.replace("\n","")
     attribStr = attribStr.split("JSONSTART")[1]
-    print attribStr
+    #print attribStr
     attribs = json.loads(attribStr)
     
     coor =  element.find("coordinates")
@@ -50,7 +50,7 @@ def buildRootNode(allElements):
             wstrech = element["texture"]["wstrech"]
             hstrech = element["texture"]["hstrech"]
 
-            print "adding rectwall %s,%s   ,%s,%s" % (x,y,w,h,)
+            #print "adding rectwall %s,%s   ,%s,%s" % (x,y,w,h,)
             texturew = StrechedTexture(texfile,wstrech) 
             textureh = StrechedTexture(texfile,hstrech) 
             rootNode.nest(RectWall(Vect(x,y),Vect(w,h),texturew,textureh))
@@ -65,3 +65,73 @@ def readMap(mapfile):
     node = xmldoc.getroot()
     return [ extractInfo(element)  for element in node.findall("element") ]
          
+
+
+
+def __randDicWall(x,y,w,h,texturew,textureh,tex):
+    """
+    """
+    rwall = RectWall(Vect(x,y),Vect(w,h),
+            texturew,textureh).asDic()
+
+    rwall["texture"] = {u'hstrech': textureh,
+                     u'tex': tex,
+                     u'wstrech': texturew} 
+                
+    return rwall
+
+def randomMap(count,size=50):
+    """
+
+
+    """
+    # player init 
+    playerStart = {u'rotate': 0.0, 'h': 1, 'w': 1, 'y': 459, 'x': 549, u'type': u'playerStart'}
+    res = [playerStart,]
+    
+    tex= u'wolfenscii/asset/tex/Red3'
+
+    
+    # border
+    rwall = __randDicWall(0,0.,size,1,
+            1,1,tex)
+    res.append(rwall)
+    
+    rwall = __randDicWall(0,0.,1,size,
+            1,1,tex)
+    res.append(rwall)
+    
+    rwall = __randDicWall(size,0,1,size,
+            1,1,tex)
+    res.append(rwall)
+    
+    rwall = __randDicWall(0,size,size+1,1,
+            1,1,tex)
+    res.append(rwall)
+    
+    #rwall = __randDicWall(0,0,2,20,1,1,tex)
+    #res.append(rwall)
+
+    for i in range(count):
+        #random x y
+        import random
+
+        x = random.random()*size
+        y = random.random()*size
+        h = random.random()*size/4.0 + 3
+        w = random.random()*size/4.0 + 3
+
+
+        # random texture
+        texturew = 1
+        textureh = 1
+        
+        tex= u'wolfenscii/asset/tex/Red3'
+        
+
+        rwall = __randDicWall(x,y,w,h,texturew,texturew,tex)
+        
+        res.append(rwall)
+
+
+    return res 

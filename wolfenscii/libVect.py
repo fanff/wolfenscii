@@ -269,10 +269,28 @@ class WallSet(object):
 
     def nest(self,wallSet):
         self.wallList.append(wallSet)
+    
+    def inside(self,vect):
+        """
+        return true if vect is inside Rect (if rect)
+        """
+        for wall in self.wallList:
+            #print wall,self.collisionList
+            if type(wall) in [WallSet,RectWall] :
+                subinside = wall.inside(vect)
+                if subinside==True:
+                    return True
+        return False
 
 class RectWall(WallSet):
     def __init__(self,init,extend,texturew,textureh):
 
+        self.ix = init.x
+        self.iy = init.y
+        
+        self.ex = extend.x
+        self.ey = extend.y
+        
         a = init
         b = init.add( Vect(0,extend.y) ) 
         c = init.add( Vect(extend.x,extend.y) ) 
@@ -283,5 +301,31 @@ class RectWall(WallSet):
                WallVect(c,d,textureh), 
                WallVect(d,a,texturew), 
         ]
+
+    def asDic(self):
+        """
+        
+        """
+
+        return {
+            u'type': u'RectWall',
+            'w': self.ex,
+            'h': self.ey,
+
+            'x': self.ix,
+            'y': self.iy}
+            
+    def inside(self,vect):
+        """
+        return true if vect is inside Rect (if rect)
+        """
+        if vect.x >= self.ix and vect.x < self.ix+self.ex:
+            #print vect.y,"   ",self.iy,self.iy+self.ey
+            if vect.y >= self.iy and vect.y < self.iy + self.ey:
+                return True
+            else:
+                return False
+        else:
+            return False
 
         

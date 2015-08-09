@@ -44,16 +44,29 @@ class GameBoard():
     def __init__(self,debug):
         self.debug = debug
         res = wap.readMap('wolfenscii/asset/map/map1.uxf')
-        
-        
         self.rootSceneNode,self.playerPos,self.playerAngle =wap.buildRootNode(res)
+
+        self.worldMap=[
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                
+                ]
+        self.playerPos = Vect(5.0,5.0)
     
     def playerTurnRight(self):
         self.playerAngle+=2.0
     def playerTurnLeft(self):
         self.playerAngle-=2.0
     def playerFront(self):
-         
         ray = Vect()
         ray.rotate_ip(self.playerAngle*2*pi/360.0)
         
@@ -93,6 +106,104 @@ class ClearCanvas():
                 canvas[roid][j].char = self.clearPixer.char
 
 
+class MatrixSceneLayer():
+
+
+
+
+    def __init__(self,debug,gameBoard):
+        self.debug = debug
+        self.gb = gameBoard
+        
+        self.planeX= 0.0
+        self.planeY= 0.66
+
+
+        self.dirX = -1.0
+        self.dirY = 0.0
+
+        self.posX = 5
+        self.posY = 6
+
+    def update(self,canvas):
+        self.debug.setText("Scene.playerPos","%s"%self.gb.playerPos)
+        self.debug.setText("Scene.angle","%s"%self.gb.playerAngle)
+        
+        colsCount = len(canvas[0])
+        self.debug.setText("Scene.colsCount","%s"%colsCount)
+        angleStep = ENGINEOPTION.FOV/colsCount
+        self.debug.setText("Scene.angleStep","%s"%angleStep)
+        
+        colHeight = len(canvas)
+
+        for colToRender in range(colsCount):
+            # for each columns to Render
+
+            cameraX = 2. * colToRender / float(colsCount) - 1.0 #//x-coordinate in camera space
+            rayPosX = self.posX
+            rayPosY = self.posY
+            rayDirX = self.dirX + self.planeX * cameraX
+            rayDirY = self.dirY + self.planeY * cameraX
+            
+            # map box
+            mapX = int(self.gb.playerPos.x)
+            mapY = int(self.gb.playerPos.y)
+
+            
+            # len of ray
+            sideDistX=0
+            sideDistY=0
+            
+            try:
+                #  //length of ray from one x or y-side to next x or y-side
+                deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX))
+                deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
+                 
+                # //what direction to step in x or y-direction (either +1 or -1)
+                stepX=0
+                stepY=0
+
+                hit = 0 #//was there a wall hit?
+                #side #//was a NS or a EW wall hit?
+                if (rayDirX < 0):
+                    stepX = -1
+                    sideDistX = (rayPosX - mapX) * deltaDistX
+                else:
+                    stepX = 1
+                    sideDistX = (mapX + 1.0 - rayPosX) * deltaDistX
+                if (rayDirY < 0):
+                    stepY = -1
+                    sideDistY = (rayPosY - mapY) * deltaDistY
+                else:
+                    stepY = 1
+                    sideDistY = (mapY + 1.0 - rayPosY) * deltaDistY
+
+                #//perform DDA
+                while (hit == 0):
+                    #//jump to next map square, OR in x-direction, OR in y-direction
+                    if (sideDistX < sideDistY):
+                        sideDistX += deltaDistX
+                        mapX += stepX
+                        side = 0
+                    else:
+                        sideDistY += deltaDistY
+                        mapY += stepY
+                        side = 1
+                    #//Check if ray has hit a wall
+                    if (self.gb.worldMap[mapX][mapY] > 0):
+                        hit = 1
+                  #//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
+                if (side == 0):
+                      perpWallDist = fabs((mapX - rayPosX + (1 - stepX) / 2) / rayDirX);
+                else:
+                    perpWallDist = fabs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
+
+
+          
+                
+
+            except :
+                pass
 class SceneLayer():
     def __init__(self,debug,gameBoard):
         self.debug = debug
@@ -223,7 +334,13 @@ class DebugLayer():
 
 
 class GameState(object):
+    """
+    Contains : 
     
+    * Canvas
+    * List of layers
+
+    """
     def __init__(self,rows,cols):
         self.canvas = []
         self.rows = rows
@@ -232,10 +349,13 @@ class GameState(object):
         self.debugLayer = DebugLayer()
         self.gameBoard = GameBoard(self.debugLayer)
         
-        self.sceneLayer = SceneLayer(self.debugLayer,self.gameBoard)
+        self.sceneLayer = MatrixSceneLayer(self.debugLayer,self.gameBoard)
 
         
-        self.layers = [ClearCanvas(),self.sceneLayer,self.debugLayer]
+        self.layers = [
+                ClearCanvas(),
+                self.sceneLayer,
+                self.debugLayer]
         self.lastKey = ""
         self.__populateCanvas()
 
@@ -252,6 +372,8 @@ class GameState(object):
         Call every layer to fill the canvas.
 
         """
+        # play random player move
+
         timeStart = time.time()
         for layer in self.layers:
             layer.update(self.canvas)
@@ -326,7 +448,7 @@ class Screen(CursesStdIO):
     
 
     def redisplayLines(self):
-
+        
         if self.canvas != None:
             for canvasLineKey , canvasLine in enumerate(self.canvas):
                 for canvasColKey,pix in enumerate(canvasLine):
