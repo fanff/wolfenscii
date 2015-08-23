@@ -181,6 +181,49 @@ class MatrixSceneLayer():
 
                 else:
                     # player should move
+                    
+                    #  MOVETOFUNC = { 
+                    #          -3 : self.playerTurnLeft,
+                    #          -2 : self.playerTurnRight,
+                    #          -1 : self.playerBack,
+                    #          1 : self.playerFront,
+                    #          2:self.playerTurnLeft,
+                    #          3:self.playerTurnRight,
+                    #          }
+
+                    #  moves = [
+                    #      [-1,3],
+                    #      [-1,2],
+                    #      [-1],
+                    #      [1],
+                    #      [2],
+                    #      [3],
+                    #      [2,1],
+                    #      [3,1],
+                    #      [1,2],
+                    #      [1,3],
+                    #      ]
+                    #  
+                    #  scores =[]
+                    #  for moveList in moves:
+                    #      for act in moveList:
+                    #          MOVETOFUNC[act]()
+                    #      c1x = (2*self.posX+self.dirX)/2.0
+                    #      c1y = (2*self.posY+self.dirY)/2.0
+
+                    #      score = (c1x-nextX+0.5)**2 + (c1y-nextY+0.5)**2
+
+                    #      scores.append(score)
+                    #      for act in reversed(moveList):
+                    #          MOVETOFUNC[-act]()
+
+                    #  # min score
+                    #  scoreMin = min(scores)
+                    #  scoreMinidx = [i for i, j in enumerate(scores) if j == scoreMin][0]
+
+                    #  for act in moves[scoreMinidx]:
+                    #      MOVETOFUNC[act]()
+
 
 
                     # calculate direction
@@ -390,7 +433,7 @@ class MatrixSceneLayer():
                 self.log.debug("dest: %s , %s", self.apmDestX,self.apmDestY)
                 self.log.debug("player: %s , %s", int(self.posX),int(self.posY))
                 
-                self.apmRoute = astar.pathFind(self.worldMap,astar.DIRS4,
+                self.apmRoute = astar.pathFind(self.worldMap,astar.DIRS8,
                         self.apmDestY,self.apmDestX, 
                         int(self.posY),int(self.posX))
 
@@ -409,43 +452,6 @@ class MatrixSceneLayer():
 
         return randX,randY
 
-#    //move forward if no wall in front of you
-#    if (keyDown(SDLK_UP))
-#    {
-#      if(worldMap[int(posX + dirX * moveSpeed)][int(posY)] == false) posX += dirX * moveSpeed;
-#      if(worldMap[int(posX)][int(posY + dirY * moveSpeed)] == false) posY += dirY * moveSpeed;
-#    }
-#    //move backwards if no wall behind you
-#    if (keyDown(SDLK_DOWN))
-#    {
-#      if(worldMap[int(posX - dirX * moveSpeed)][int(posY)] == false) posX -= dirX * moveSpeed;
-#      if(worldMap[int(posX)][int(posY - dirY * moveSpeed)] == false) posY -= dirY * moveSpeed;
-#    }
-#    //rotate to the right
-#    if (keyDown(SDLK_RIGHT))
-#    {
-#      //both camera direction and camera plane must be rotated
-#      double oldDirX = dirX;
-#      dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-#      dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-#      double oldPlaneX = planeX;
-#      planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-#      planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-#    }
-#    //rotate to the left
-#    if (keyDown(SDLK_LEFT))
-#    {
-#      //both camera direction and camera plane must be rotated
-#      double oldDirX = dirX;
-#      dirX = dirX * cos(rotSpeed) - dirY * sin(rotSpeed);
-#      dirY = oldDirX * sin(rotSpeed) + dirY * cos(rotSpeed);
-#      double oldPlaneX = planeX;
-#      planeX = planeX * cos(rotSpeed) - planeY * sin(rotSpeed);
-#      planeY = oldPlaneX * sin(rotSpeed) + planeY * cos(rotSpeed);
-#    }
-#  }
-#}
-#
 
 
 #class SceneLayer():

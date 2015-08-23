@@ -13,6 +13,7 @@ from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,ColorTexture, Pixe
 from math import pi,sqrt,floor
 from wolfenscii import wap
 from wolfenscii.layers import MatrixSceneLayer,DebugLayer
+import logging
 
 class TextTooLongError(Exception):
     pass
@@ -237,20 +238,27 @@ class Screen(CursesStdIO):
         curses.endwin()
     
     def loopedCall(self):
-        try:
-            r,c = self.stdscr.getmaxyx()
+        # unsafe way
+        self.canvas = self.gameState.update()
+        self.redisplayLines()
+        # safe way
+        #try:
+        #    r,c = self.stdscr.getmaxyx()
 
-            if r!=self.rows or c!=self.cols:
-                raise Exception("fdsljl")
-            self.canvas = self.gameState.update()
-            self.redisplayLines()
-        except:
-            self.rows, self.cols = self.stdscr.getmaxyx()
-            self.gameState.resetCanvas(self.rows-1,self.cols)
+        #    if r!=self.rows or c!=self.cols:
+        #        raise Exception("fdsljl")
+        #    self.canvas = self.gameState.update()
+        #    self.redisplayLines()
+        #except:
+        #    self.rows, self.cols = self.stdscr.getmaxyx()
+        #    self.gameState.resetCanvas(self.rows-1,self.cols)
 
 
 
 if __name__ == '__main__':
+    #logging.basicConfig(filename="./log.log")
+    #logging.basicConfig(filename="./log.log")
+
     ENGINEOPTION = EngineOptions()
     
     stdscr = curses.initscr() # initialize curses
