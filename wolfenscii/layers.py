@@ -1,6 +1,6 @@
 import logging
 from math import sqrt,sin,cos,atan2,pi
-from libVect import Vect,StrechedTexture
+from libVect import Vect,StrechedTexture,Pixel
 
 from wolfenscii import astar
 import random 
@@ -296,39 +296,35 @@ class MatrixSceneLayer():
 
             # calculate texture
 
-            if isinstance(objetc,int):
-                if wallHeight<colHeight:
-                    missing = colHeight-wallHeight
-                    missingUP = missing/2
-                    missingDown = colHeight-wallHeight-missingUP
-
-                    textureCol = [" " for _ in range(missingUP)]
-
-                    textureCol+= [objetc for _ in range(wallHeight)]
-                    textureCol+= [" " for _ in range(missingDown)]
-                    #print len(textureCol)
-                else:
-                    textureCol = [objetc for _ in range(colHeight)]
-
-                texturedColumns.append(textureCol)
-
-            elif isinstance(objetc,StrechedTexture):
-
-                colu = objetc.getColl(0.5,wallHeight)
-                
+            # TODO : 0.5 ?!
+            colu = objetc.getColl(0.5,wallHeight)
+            
+            if wallHeight<= colHeight:
                 missing = colHeight-wallHeight
                 missingUP = missing/2
-                missingDown = colHeight-wallHeight-missingUP
+                missingDown = missing-missingUP
                 
-                textureCol = [" " for _ in range(missingUP)]
-
-                textureCol+= [_.char for _ in colu]
-                textureCol+= [" " for _ in range(missingDown)]
+                textureCol = [Pixel() for _ in range(missingUP)]
+                textureCol+= colu
+                textureCol+= [Pixel() for _ in range(missingDown)]
+            else:
+                missing = wallHeight - colHeight
+                missingUP = missing/2
                 
-                #print len(textureCol)
-                #textureCol = [objetc for _ in range(colHeight)]
+                #missingDown = missing-missingUP
+                
+                #fact = wallHeight/float(colHeight)
 
-                texturedColumns.append(textureCol)
+                #lencolu = "%s %s %s %.3f"%(len(colu),colHeight,missing,fact)
+                #textureCol = [_ for _ in lencolu]
+                #
+                #while len(textureCol) < wallHeight:
+                #    textureCol+=["."]
+                #
+
+                textureCol = [colu[missingUP+_] for _ in range(colHeight)]
+
+            texturedColumns.append(textureCol)
 
 
         # apply textures on canvas
@@ -336,8 +332,8 @@ class MatrixSceneLayer():
             for i,canvasline in enumerate(canvas):
 
                 pix = canvasline[colid]
-                pix.char = ("%s"%textureCol[i])
-                pix.style= 2
+                pix.char = textureCol[i].char
+                pix.style= textureCol[i].style  # TODO : fix here
 
         #render map
         px = int(self.posX)
@@ -351,6 +347,7 @@ class MatrixSceneLayer():
                 incanvai = i
                 incanvaj = j
 
+                canvas[incanvai][incanvaj].style=3
                 if i == mapsize/2 and j == mapsize/2:
                     if abs(self.dirX) > abs(self.dirY):
                         if self.dirX > 0:

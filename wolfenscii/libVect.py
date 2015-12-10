@@ -212,7 +212,7 @@ class StrechedTexture():
             for i in range(height):
                 lineidxFlt = ( ( i - height2 ) * vectFactor)+ texCenter
                 #print i, " -> ",lineidxFlt 
-                lineidx =int(round(lineidxFlt ))
+                lineidx =int(lineidxFlt )
                 #print i, " -> ",lineidx
                 coll.append( self.texData[lineidx][colidx] )
             return coll
