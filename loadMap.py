@@ -3,10 +3,10 @@ from  wolfenscii.libVect  import WallVect,Vect
 from pprint import pprint
 if __name__ == "__main__":
     #res =   wap.readMap('wolfenscii/asset/map/map1.uxf')
-    
+
     size = 30
-    res = wap.randomMap(4,size) 
-    
+    res = wap.randomMap(4,size)
+
     for r in res :
 
         if r["type"] == "RectWall":
@@ -34,6 +34,6 @@ if __name__ == "__main__":
             else:
                 print ".",
 
-        print 
+        print
 
 

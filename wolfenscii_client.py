@@ -28,7 +28,7 @@ class CursesStdIO:
 
     def doRead(self):
         """called when input is ready"""
-    def logPrefix(self): 
+    def logPrefix(self):
         return 'CursesClient'
 
 
@@ -51,8 +51,8 @@ class ClearCanvas():
 
 class GameState(object):
     """
-    Contains : 
-    
+    Contains :
+
     * Canvas
     * List of layers
 
@@ -61,9 +61,9 @@ class GameState(object):
         self.canvas = []
         self.rows = rows
         self.cols= cols
-        
+
         self.debugLayer = DebugLayer()
-        
+
         worldMap=[
                 [1,1,1,1,1,1,2,1,3,1,3,1,1,1,1,1,1],
                 [3,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,1],
@@ -92,8 +92,8 @@ class GameState(object):
 
 
         self.sceneLayer = MatrixSceneLayer(self.debugLayer,worldMap)
-        
-        # load Texture 
+
+        # load Texture
         self.sceneLayer.texmapping[1] = StrechedTexture("wolfenscii/asset/test/tex1")
         self.sceneLayer.texmapping[2] = StrechedTexture("wolfenscii/asset/test/tex2")
         self.sceneLayer.texmapping[3] = StrechedTexture("wolfenscii/asset/test/tex3")
@@ -104,14 +104,14 @@ class GameState(object):
         self.sceneLayer.texmapping[8] = StrechedTexture("wolfenscii/asset/test/tex3")
         self.sceneLayer.texmapping[9] = StrechedTexture("wolfenscii/asset/test/tex3")
 
-        
+
         self.layers = [
                 ClearCanvas(),
                 self.sceneLayer,
                 self.debugLayer]
         self.lastKey = ""
         self.__populateCanvas()
-    
+
     def resetCanvas(self,rows,cols):
         self.canvas = []
         self.rows = rows
@@ -135,12 +135,12 @@ class GameState(object):
         timeStart = time.time()
         for layer in self.layers:
             layer.update(self.canvas)
-        
+
         self.debugLayer.setText("gs.update / s ",str(1.0/(time.time()-timeStart)))
         self.debugLayer.setText("lastKey",str(self.lastKey))
-        
+
         return self.canvas
-    
+
     def keyEvent(self,key):
         """
         Dispatch key pressed as an action
@@ -192,7 +192,7 @@ class Screen(CursesStdIO):
         curses.curs_set(0)     # no annoying mouse cursor
 
         self.rows, self.cols = self.stdscr.getmaxyx()
-        
+
         self.gameState = GameState(self.rows-1,self.cols)
         curses.start_color()
 
@@ -213,13 +213,13 @@ class Screen(CursesStdIO):
 
     def connectionLost(self, reason):
         self.close()
-    
+
 
     def redisplayLines(self):
         if self.canvas != None:
             for canvasLineKey , canvasLine in enumerate(self.canvas):
                 for canvasColKey,pix in enumerate(canvasLine):
-                    self.stdscr.addstr(canvasLineKey, canvasColKey, pix.char, 
+                    self.stdscr.addstr(canvasLineKey, canvasColKey, pix.char,
                                    curses.color_pair(pix.style))
 
         self.stdscr.refresh()
@@ -228,11 +228,11 @@ class Screen(CursesStdIO):
     def doRead(self):
         """ Input is ready! """
         curses.noecho()
-        
+
         c = self.stdscr.getch() # read a character
-        
+
         self.gameState.keyEvent(c)
-        
+
         if c == 113: # q
             reactor.stop()
 
@@ -244,7 +244,7 @@ class Screen(CursesStdIO):
         self.stdscr.keypad(0)
         curses.echo()
         curses.endwin()
-    
+
     def loopedCall(self):
         # unsafe way
         self.canvas = self.gameState.update()
@@ -268,12 +268,12 @@ if __name__ == '__main__':
     #logging.basicConfig(filename="./log.log")
 
     ENGINEOPTION = EngineOptions()
-    
+
     stdscr = curses.initscr() # initialize curses
     screen = Screen(stdscr)   # create Screen object
     stdscr.refresh()
     reactor.addReader(screen) # add screen object as a reader to the reactor
-    
+
     l = task.LoopingCall(screen.loopedCall)
     l.start(1.0/ENGINEOPTION.FPS )
 
