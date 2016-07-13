@@ -9,13 +9,27 @@ RUN apt-get -y install git
 
 RUN mkdir /var/run/sshd
 RUN echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
+
+# DELETE
 RUN sed -i '28s/.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
+# DELETE
 RUN echo 'root:root' | chpasswd
 RUN git clone https://github.com/fanff/wolfenscii.git
 
-#RUN sed -i 's/root:x:0:0:root:\/root:\/bin\/bash/root:x:0:0:root:\/wolfenscii:wolfenscii_client.py/' /etc/passwd 
+# DELETE
+RUN sed -i '28s/.*/PermitRootLogin no/' /etc/ssh/sshd_config
+
+RUN useradd wolf
+RUN echo 'wolf:wolf' | chpasswd
+
+# DELETE
 RUN chmod +x /wolfenscii/wolfenscii_client.py
+
+RUN sed -i 's/^wolf.*/wolf:x:1000:1000::\/wolfenscii:\/wolfenscii\/wolfenscii_client.py/' /etc/passwd 
+
+#wolf:x:1000:1000::/wolfenscii:/wolfenscii/wolfenscii_client.py
+
 
 EXPOSE 22
 CMD /usr/sbin/sshd -D
