@@ -13,19 +13,19 @@ python wolfenscii_client.py
 
 #### To deploy in docker:
 
-This method allow you to deplay wolfenscii in a container and make it availlable via ssh.
+This method allow you to deploy wolfenscii in a container and make it availlable via ssh.
 
 * First build the image
 ```bash
 docker build -t wspim . 
 ```
 
-* Then run the container 
+* Then run the container and forward the ssh port
 ```bash
 docker run -d --name wsp -p 2222:22 wspim
 ```
 
-* Connect remotely
+* Connect remotely, password is "wolf"
 ```bash
 ssh -p 2222 wolf@yourhostname 
 ```
