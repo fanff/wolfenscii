@@ -99,7 +99,7 @@ class GameState(object):
         self.sceneLayer.texmapping[3] = StrechedTexture("wolfenscii/asset/test/tex3")
         self.sceneLayer.texmapping[4] = StrechedTexture("wolfenscii/asset/test/tex4")
         self.sceneLayer.texmapping[5] = StrechedTexture("wolfenscii/asset/tex/Red3")
-        self.sceneLayer.texmapping[6] = StrechedTexture("wolfenscii/asset/test/tex3")
+        self.sceneLayer.texmapping[6] = StrechedTexture("wolfenscii/asset/tex/brick1")
         self.sceneLayer.texmapping[7] = StrechedTexture("wolfenscii/asset/test/tex3")
         self.sceneLayer.texmapping[8] = StrechedTexture("wolfenscii/asset/test/tex3")
         self.sceneLayer.texmapping[9] = StrechedTexture("wolfenscii/asset/test/tex3")
