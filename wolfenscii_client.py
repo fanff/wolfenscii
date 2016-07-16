@@ -262,10 +262,21 @@ class Screen(CursesStdIO):
         #    self.gameState.resetCanvas(self.rows-1,self.cols)
 
 
-
+import argparse
 if __name__ == '__main__':
     #logging.basicConfig(filename="./log.log")
-    #logging.basicConfig(filename="./log.log")
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Wolfenscii')
+    parser.add_argument('-D', dest='debug', action='store_true',
+                        default=False,
+                        help='Debug into ./log.log file by default')
+
+    args = parser.parse_args()
+    if args.debug:
+        logging.basicConfig(filename="./log.log",level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.CRITICAL)
 
     ENGINEOPTION = EngineOptions()
 
