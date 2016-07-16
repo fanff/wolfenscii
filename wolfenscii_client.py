@@ -136,7 +136,7 @@ class GameState(object):
         for layer in self.layers:
             layer.update(self.canvas)
 
-        self.debugLayer.setText("gs.update / s ",str(1.0/(time.time()-timeStart)))
+        self.debugLayer.setText("gs.update / s ","%.1f"%(1.0/(time.time()-timeStart)))
         self.debugLayer.setText("lastKey",str(self.lastKey))
 
         return self.canvas
@@ -247,19 +247,19 @@ class Screen(CursesStdIO):
 
     def loopedCall(self):
         # unsafe way
-        self.canvas = self.gameState.update()
-        self.redisplayLines()
+        # ~self.canvas = self.gameState.update()
+        # ~self.redisplayLines()
         # safe way
-        #try:
-        #    r,c = self.stdscr.getmaxyx()
+        try:
+            r,c = self.stdscr.getmaxyx()
 
-        #    if r!=self.rows or c!=self.cols:
-        #        raise Exception("fdsljl")
-        #    self.canvas = self.gameState.update()
-        #    self.redisplayLines()
-        #except:
-        #    self.rows, self.cols = self.stdscr.getmaxyx()
-        #    self.gameState.resetCanvas(self.rows-1,self.cols)
+            if r!=self.rows or c!=self.cols:
+                raise Exception("fdsljl")
+            self.canvas = self.gameState.update()
+            self.redisplayLines()
+        except:
+            self.rows, self.cols = self.stdscr.getmaxyx()
+            self.gameState.resetCanvas(self.rows-1,self.cols)
 
 
 import argparse
