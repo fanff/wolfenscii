@@ -3,7 +3,7 @@ import json
 import xml.etree.ElementTree as ET
 
 
-from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,ColorTexture, Pixel,StrechedTexture
+from wolfenscii.libVect import Vect,ColorTexture, Pixel,StrechedTexture
 
 def extractInfo(element):
     """

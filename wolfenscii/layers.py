@@ -1,9 +1,11 @@
 import logging
 from math import sqrt,sin,cos,atan2,pi
-from libVect import Vect,StrechedTexture,Pixel
+from libVect import Pixel
 
 from wolfenscii import astar
 import random 
+
+
 class MatrixSceneLayer():
 
 
@@ -451,104 +453,7 @@ class MatrixSceneLayer():
 
 
 
-#class SceneLayer():
-#    def __init__(self,debug,gameBoard):
-#        self.debug = debug
-#        self.gb = gameBoard
-#
-#    def update(self,canvas):
-#        self.debug.setText("Scene.playerPos","%s"%self.gb.playerPos)
-#        self.debug.setText("Scene.angle","%s"%self.gb.playerAngle)
-#        
-#        colsCount = len(canvas[0])
-#        self.debug.setText("Scene.colsCount","%s"%colsCount)
-#        angleStep = ENGINEOPTION.FOV/colsCount
-#        self.debug.setText("Scene.angleStep","%s"%angleStep)
-#        
-#        colHeight = len(canvas)
-#        
-#        startT = time.time()
-#        for colToRender in range(colsCount):
-#            angleDeg = (float(colToRender) - float(colsCount)/2.0 ) * angleStep
-#            angleRAD = ((self.gb.playerAngle+angleDeg)* 2 * pi)/ 360.0
-#
-#            rayAngle = angleRAD
-#
-#            ray = Vect()
-#            ray.rotate_ip(rayAngle)
-#            
-#            ray.mul_ip(100)
-#            ray.add_ip(self.gb.playerPos)
-#            pp=self.gb.playerPos
-#            rsn = self.gb.rootSceneNode
-#
-#            collideList= rsn.collide(WallVect( ray,pp ,"") )
-#            
-#            if len(collideList) > 0:
-#
-#                shortestDistance = 100*100
-#                nearestCollisionPoint = None
-#                nearestCollider = None
-#                
-#                for collisionPoint , collider in collideList:
-#                    dist = collisionPoint.add(pp.mul(-1.0)).normsq()
-#                    if dist < shortestDistance:
-#                        shortestDistance = dist
-#                        nearestCollisionPoint = collisionPoint
-#                        nearestCollider = collider
-#                
-#                shortestDistance  = max(0.5,sqrt(shortestDistance))
-#                magicFactor = 0.5
-#
-#                wallHeight = int (colHeight/(shortestDistance * magicFactor))
-#                
-#                # calculate the vertical collumn from texture
-#                if  wallHeight < colHeight:
-#                    
-#                    firsttier = int( (colHeight-wallHeight) / 2.0) 
-#
-#                    # calculate ratio of Wallvect collided
-#                    collisionRatio = nearestCollider.collisionRatio(nearestCollisionPoint)
-#
-#                    # get the collum of pixel to print 
-#                    wallcoll = nearestCollider.texture.getColl( collisionRatio,int(wallHeight))
-#
-#                    for lineid,line in enumerate(canvas):
-#                        pix = canvas[lineid][colToRender]
-#                        if lineid < firsttier:
-#                            pix.char = ' '
-#                        elif lineid < firsttier + wallHeight:
-#
-#                            p = wallcoll[lineid-firsttier]
-#                            pix.style= p.style
-#                            pix.char = p.char
-#                        else:
-#                            pix.char = ' '
-#                else:
-#                    extend = (wallHeight-colHeight)
-#                    
-#                    wallcoll = nearestCollider.texture.getColl( 0.1,wallHeight)
-#
-#                    for lineid,line in enumerate(canvas):
-#                        pix = canvas[lineid][colToRender]
-#                        pix.char = wallcoll[0].char
-#                        pix.style= wallcoll[0].style
-#            else:
-#                colContent = "NORENDER # %s "%ray
-#                colSize = len(colContent)
-#                for lineid,line in enumerate(canvas):
-#                    pix = canvas[lineid][colToRender]
-#                    pix.char = colContent[lineid] if lineid < colSize else " "
-#                    pix.style= 5
-#
-#            # end for
-#        
-#
-#        renderTime = ((time.time()-startT)*1000)
-#        self.debug.setText("Scene.updateTime ms","%s"%renderTime)
-#        self.debug.setText("Scene.update / s","%s"%(1000.0/renderTime))
-#        self.debug.setText("Scene.angleMax","%s"%angleRAD)
-#        
+
 
 
 class DebugLayer():

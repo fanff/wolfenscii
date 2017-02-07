@@ -9,9 +9,9 @@ from twisted.internet import reactor,task
 from twisted.internet.protocol import ClientFactory
 from twisted.python import log
 
-from wolfenscii.libVect import Vect,WallVect,RectWall,WallSet,ColorTexture, Pixel,StrechedTexture
+from wolfenscii.libVect import Vect,ColorTexture, Pixel,StrechedTexture
+
 from math import pi,sqrt,floor
-from wolfenscii import wap
 from wolfenscii.layers import MatrixSceneLayer,DebugLayer
 import logging
 
@@ -53,7 +53,8 @@ class GameState(object):
     """
     Contains :
 
-    * Canvas
+    * Canvas list
+
     * List of layers
 
     """
@@ -199,9 +200,9 @@ class Screen(CursesStdIO):
         # create color pair's 1 and 2
         self.colorSet = []
         self.__init_pair(1, curses.COLOR_BLACK, curses.COLOR_BLACK)
-        self.__init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
         self.__init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
         self.__init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        self.__init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
         self.__init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
         self.__init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
         self.__init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
@@ -246,9 +247,6 @@ class Screen(CursesStdIO):
         curses.endwin()
 
     def loopedCall(self):
-        # unsafe way
-        # ~self.canvas = self.gameState.update()
-        # ~self.redisplayLines()
         # safe way
         try:
             r,c = self.stdscr.getmaxyx()
