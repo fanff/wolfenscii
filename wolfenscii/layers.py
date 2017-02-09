@@ -284,6 +284,8 @@ class MatrixSceneLayer():
 
         else:
             self.debug.setText("AutoMode      ","Not Active    ")
+        # End auto move
+
 
         # render  
         colHeight = len(canvas)
