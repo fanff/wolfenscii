@@ -66,19 +66,19 @@ class GameState(object):
         self.debugLayer = DebugLayer()
 
         worldMap=[
-                [1,1,1,1,1,1,2,1,3,1,3,1,1,1,1,1,1],
-                [3,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,1],
+                [1,1,1,1,1,1,2,1,3,1,3,1,3,1,3,1,1],
+                [3,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,3],
                 [3,0,0,0,2,0,0,0,3,2,0,0,0,0,0,0,1],
+                [3,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,3],
                 [3,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,1],
-                [3,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,1],
-                [3,0,0,0,0,0,0,0,3,2,0,0,8,8,8,8,1],
+                [3,0,0,0,0,0,0,0,3,2,0,0,8,8,8,8,8],
                 [3,0,0,0,0,0,0,0,4,2,0,0,0,0,0,0,1],
                 [3,0,0,0,0,0,0,0,4,2,0,0,0,0,0,0,1],
                 [3,0,0,0,0,0,0,0,4,2,0,0,0,0,0,0,1],
-                [3,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1],
+                [3,0,0,0,0,0,8,8,8,8,8,0,0,0,0,0,1],
                 [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-                [3,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1],
+                [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
                 [5,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,1],
@@ -87,7 +87,7 @@ class GameState(object):
                 [5,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,1],
                 [5,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,1],
                 [5,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,1],
-                [3,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,1],
+                [5,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,1],
                 [3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
                 ]
 
@@ -111,6 +111,7 @@ class GameState(object):
                 self.sceneLayer,
                 self.debugLayer]
         self.lastKey = ""
+        self.lastMouse = ""
         self.__populateCanvas()
 
     def resetCanvas(self,rows,cols):
@@ -139,8 +140,21 @@ class GameState(object):
 
         self.debugLayer.setText("gs.update / s ","%.1f"%(1.0/(time.time()-timeStart)))
         self.debugLayer.setText("lastKey",str(self.lastKey))
+        self.debugLayer.setText("lastMouse",str(self.lastMouse))
 
         return self.canvas
+    
+    def mouseEvent(self,x,y,pld):
+        """
+        dispatch
+
+        """
+        self.lastMouse='%f,%f %d '%(x,y,pld)
+        diff = x - self.cols/2
+
+        self.sceneLayer.playerTurn(diff/3.0)
+
+
 
     def keyEvent(self,key):
         """
@@ -156,19 +170,19 @@ class GameState(object):
         # 108 l
         # 109 m
 
-        if key == 104:  # h
+        if key in (104,115):  # h
             self.sceneLayer.playerTurnLeft()
         elif key == 72: # H
             self.sceneLayer.playerStepLeft()
-        elif key in (75,107): # k
+        elif key in (75,101,107): # k
             self.sceneLayer.playerFront()
-        elif key in (74, 106) : # j
+        elif key in (74, 100,106) : # j
             self.sceneLayer.playerBack()
-        elif key == 108: # l
+        elif key in (102,108): # l
             self.sceneLayer.playerTurnRight()
         elif key == 76: # L
             self.sceneLayer.playerStepRight()
-        elif key == 100: # d
+        elif key in (116,): # d
             # stop debug
             self.debugLayer.muted = not self.debugLayer.muted
         elif key == 97: # a
@@ -181,6 +195,7 @@ class GameState(object):
         elif key == 112: # p
             # increase magic factor
             self.sceneLayer.magicFactor +=0.1
+
 
 class Screen(CursesStdIO):
     def __init__(self, stdscr):
@@ -217,6 +232,9 @@ class Screen(CursesStdIO):
 
 
     def redisplayLines(self):
+        """
+        2d world
+        """
         if self.canvas != None:
             for canvasLineKey , canvasLine in enumerate(self.canvas):
                 for canvasColKey,pix in enumerate(canvasLine):
@@ -228,15 +246,21 @@ class Screen(CursesStdIO):
 
     def doRead(self):
         """ Input is ready! """
-        curses.noecho()
+        try:
+            curses.noecho()
 
-        c = self.stdscr.getch() # read a character
+            c = self.stdscr.getch() # read a character
 
-        self.gameState.keyEvent(c)
+            if c == curses.KEY_MOUSE:
+                _ , x,y,_,pld = curses.getmouse()
+                self.gameState.mouseEvent(x,y,pld)
+            else:
+                self.gameState.keyEvent(c)
 
-        if c == 113: # q
-            reactor.stop()
-
+            if c == 113: # q
+                reactor.stop()
+        except Exception as e:
+            logging.exception("error in do Read")
 
     def close(self):
         """ clean up """
@@ -279,13 +303,13 @@ if __name__ == '__main__':
     ENGINEOPTION = EngineOptions()
 
     stdscr = curses.initscr() # initialize curses
+    curses.mousemask(1)
     screen = Screen(stdscr)   # create Screen object
     stdscr.refresh()
     reactor.addReader(screen) # add screen object as a reader to the reactor
 
     l = task.LoopingCall(screen.loopedCall)
     l.start(1.0/ENGINEOPTION.FPS )
-
     reactor.run() # have fun!
     screen.close()
 
