@@ -9,7 +9,7 @@ from twisted.internet import reactor,task
 from twisted.internet.protocol import ClientFactory
 from twisted.python import log
 
-from wolfenscii.libVect import Vect,ColorTexture, Pixel,StrechedTexture
+from wolfenscii.libVect import ColorTexture, Pixel,StrechedTexture
 
 from math import pi,sqrt,floor
 from wolfenscii.layers import MatrixSceneLayer,DebugLayer
