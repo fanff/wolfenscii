@@ -1,0 +1,26 @@
+
+FROM pypy:2
+MAINTAINER Fanf <fanf@fanf>
+
+RUN apt-get update && apt-get upgrade -y
+#RUN apt-get -y install python-pip python-dev python-twisted openssh-server telnetd 
+
+RUN apt-get -y install git 
+
+RUN pip install twisted 
+
+COPY wolfenscii_client.py /
+COPY wolfenscii /wolfenscii
+CMD pypy wolfenscii_client.py
+
+#RUN mkdir /var/run/sshd
+#RUN useradd wolf
+#RUN echo 'wolf:wolf' | chpasswd
+#RUN chmod +x /wolfenscii/wolfenscii_client.py
+#RUN sed -i 's/^wolf.*/wolf:x:1000:1000::\/wolfenscii:\/wolfenscii\/wolfenscii_client.py/' /etc/passwd 
+#EXPOSE 22
+#CMD /usr/sbin/sshd -D
+
+
+
+
