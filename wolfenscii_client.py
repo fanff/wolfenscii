@@ -15,6 +15,9 @@ from math import pi,sqrt,floor
 from wolfenscii.layers import MatrixSceneLayer,DebugLayer
 import logging
 
+import time
+
+
 class TextTooLongError(Exception):
     pass
 
@@ -46,6 +49,7 @@ class ClearCanvas():
         for roid,ro in enumerate(canvas):
             for j,jch in enumerate(ro):
                 canvas[roid][j].char = self.clearPixer.char
+                canvas[roid][j].style = self.clearPixer.style
 
 
 
@@ -110,6 +114,8 @@ class GameState(object):
                 ClearCanvas(),
                 self.sceneLayer,
                 self.debugLayer]
+
+
         self.lastKey = ""
         self.lastMouse = ""
         self.__populateCanvas()
@@ -182,7 +188,7 @@ class GameState(object):
             self.sceneLayer.playerTurnRight()
         elif key == 76: # L
             self.sceneLayer.playerStepRight()
-        elif key in (116,): # d
+        elif key in (116,): # t
             # stop debug
             self.debugLayer.muted = not self.debugLayer.muted
         elif key == 97: # a
@@ -198,7 +204,10 @@ class GameState(object):
 
 
 class Screen(CursesStdIO):
-    def __init__(self, stdscr):
+    def __init__(self, stdscr,debug_timer=False):
+        self.log = logging.getLogger("screen")
+        self.debug_timer=debug_timer
+
         self.stdscr = stdscr
 
         # set screen attributes
@@ -236,10 +245,12 @@ class Screen(CursesStdIO):
         2d world
         """
         if self.canvas != None:
+
             for canvasLineKey , canvasLine in enumerate(self.canvas):
                 for canvasColKey,pix in enumerate(canvasLine):
                     self.stdscr.addstr(canvasLineKey, canvasColKey, pix.char,
                                    curses.color_pair(pix.style))
+            
 
         self.stdscr.refresh()
 
@@ -276,6 +287,7 @@ class Screen(CursesStdIO):
             r,c = self.stdscr.getmaxyx()
 
             if r!=self.rows or c!=self.cols:
+                self.log
                 raise Exception("fdsljl")
             self.canvas = self.gameState.update()
             self.redisplayLines()
@@ -284,9 +296,7 @@ class Screen(CursesStdIO):
             self.gameState.resetCanvas(self.rows-1,self.cols)
 
 
-import argparse
 if __name__ == '__main__':
-    #logging.basicConfig(filename="./log.log")
     import argparse
 
     parser = argparse.ArgumentParser(description='Wolfenscii')
@@ -304,12 +314,13 @@ if __name__ == '__main__':
 
     stdscr = curses.initscr() # initialize curses
     curses.mousemask(1)
-    screen = Screen(stdscr)   # create Screen object
+    screen = Screen(stdscr,debug_timer=True)   # create Screen object
     stdscr.refresh()
     reactor.addReader(screen) # add screen object as a reader to the reactor
 
     l = task.LoopingCall(screen.loopedCall)
     l.start(1.0/ENGINEOPTION.FPS )
     reactor.run() # have fun!
+
     screen.close()
 

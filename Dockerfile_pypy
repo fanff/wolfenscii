@@ -2,10 +2,10 @@
 FROM pypy:2
 MAINTAINER Fanf <fanf@fanf>
 
-RUN apt-get update && apt-get upgrade -y
-#RUN apt-get -y install python-pip python-dev python-twisted openssh-server telnetd 
-
-RUN apt-get -y install git 
+#RUN apt-get update && apt-get upgrade -y
+##RUN apt-get -y install python-pip python-dev python-twisted openssh-server telnetd 
+#
+#RUN apt-get -y install git 
 
 RUN pip install twisted 
 

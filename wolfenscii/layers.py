@@ -16,19 +16,15 @@ class MatrixSceneLayer():
         
         self.texmapping = {}
         self.worldMap = worldMap
-        self.planeX= 0.0
-        self.planeY= 0.66
-
 
         self.magicFactor = 0.5
-        
-        # real player Dir
-        #self.rdirX = 0.0
-        #self.rdirY = -1.0
         
         # normal to player direction
         self.dirX = -1.0
         self.dirY = 0.0
+        
+        self.planeX= 0.0
+        self.planeY= 0.66
         
         # player pos
         self.posX = 5.1
@@ -38,7 +34,6 @@ class MatrixSceneLayer():
         # moveSpeed ,rotSpeed
         self.moveSpeed = 0.05
         self.rotSpeed = 0.03
-
 
         self.autoPlayerMove = False
         self.apmDestX,self.apmDestY = None,None
@@ -125,15 +120,47 @@ class MatrixSceneLayer():
                 else:
                     perpWallDist = abs((mapY - rayPosY + (1 - stepY) / 2) / rayDirY);
                 
+                """
+
+                //calculate value of wallX
+                double wallX; //where exactly the wall was hit
+                if (side == 0) wallX = rayPosY + perpWallDist * rayDirY;
+                else           wallX = rayPosX + perpWallDist * rayDirX;
+                wallX -= floor((wallX));
+
+                //x coordinate on the texture
+                int texX = int(wallX * double(texWidth));
+                if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+                if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+
+
+                """
+                #//calculate value of wallX
+                #double wallX; //where exactly the wall was hit
+                if (side == 0):
+                    
+                    wallX = rayPosY + perpWallDist * rayDirY;
+                else:           
+                    wallX = rayPosX + perpWallDist * rayDirX;
+
+                wallX -= int((wallX));
+
+                #//x coordinate on the texture
+                texWidth = 64.0
+                texX = wallX * texWidth;
+                if(side == 0 and rayDirX > 0) : texX = texWidth - texX - 1
+                if(side == 1 and rayDirY < 0) : texX = texWidth - texX - 1;
+                texX = texX/texWidth
+                
                 mapvalue = self.worldMap[mapX][mapY]
                 self.log.debug("mapvalue : %s ",mapvalue)
 
                 if mapvalue in self.texmapping:
                     texture = self.texmapping[mapvalue]
 
-                    collideList.append((perpWallDist,texture ))
+                    collideList.append((perpWallDist,texX,texture ))
                 else:
-                    collideList.append((perpWallDist, mapvalue ))
+                    collideList.append((perpWallDist,texX,mapvalue ))
 
             except Exception as e:
                 self.log.exception("wow")
@@ -143,9 +170,14 @@ class MatrixSceneLayer():
 
     def update(self,canvas):
         """
-        1. player info
+        will modify canvas
+        Suppose canvas is clean
 
-        2. render 3D
+        0. automove
+
+        1. automove
+
+        2. raycast
 
         3. render map
         """
@@ -287,21 +319,19 @@ class MatrixSceneLayer():
         # End auto move
 
 
-        # render  
+        # raycast  
         colHeight = len(canvas)
         colsCount = len(canvas[0])
         
         colisionsResult = self.raycast(colsCount)
         texturedColumns = []
-        for distance,objetc in colisionsResult:
+        for distance,texX,objetc in colisionsResult:
             # calculate wallHeight
             wallHeight = int (colHeight/(distance * self.magicFactor))
-            self.log.debug("WH %s"%wallHeight)
+            self.log.debug("WallHeightH :%s, texX : %s"%(wallHeight,texX))
 
-            # calculate texture
-
-            # TODO : 0.5 ?!
-            colu = objetc.getColl(0.5,wallHeight)
+            # calculate texture collumn
+            colu = objetc.getColl(texX,wallHeight)
             
             if wallHeight<= colHeight:
                 missing = colHeight-wallHeight
@@ -330,7 +360,8 @@ class MatrixSceneLayer():
 
             texturedColumns.append(textureCol)
 
-
+        
+        # render
         # apply textures on canvas
         for colid ,textureCol in enumerate(texturedColumns):
             for i,canvasline in enumerate(canvas):
@@ -339,7 +370,7 @@ class MatrixSceneLayer():
                 pix.char = textureCol[i].char
                 pix.style= textureCol[i].style  # TODO : fix here
 
-        #render map
+        #render mini map
         px = int(self.posX)
         py = int(self.posY)
         mapsize = 10

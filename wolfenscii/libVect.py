@@ -2,64 +2,6 @@
 from math import cos,sin,floor
 from math import pi,sqrt
 
-
-class Vect(object):
-    x = float(1)
-    y = float(0)
-
-    def __init__(self,x=1,y=0):
-        self.x = float(x)
-        self.y = float(y)
-    def __str__(self):
-        return '(%s,%s)'%(self.x,self.y)
-    
-    def mul_ip(self,scal):
-        self.x = self.x * scal
-        self.y = self.y * scal
-    
-    def mul(self,scal):
-        return Vect(self.x * scal,self.y * scal)
-
-    def add(self,vect):
-        return Vect(self.x + vect.x,self.y + vect.y)
-
-    def add_ip(self,vect):
-        self.x = self.x + vect.x
-        self.y = self.y + vect.y
-
-    def rotate(self,angleRAD):
-        #A = array([[cos(angleRAD), -sin(angleRAD)], # rotation matrix
-        #        [sin(angleRAD), cos(angleRAD)]])
-        x = cos(angleRAD)*self.x -sin(angleRAD)*self.y
-        y = sin(angleRAD)*self.x +  cos(angleRAD)* self.y
-        return Vect(x,y)
-
-    def rotate_ip(self,angleRAD):
-        x = cos(angleRAD)*self.x -sin(angleRAD)*self.y
-        y = sin(angleRAD)*self.x +  cos(angleRAD)* self.y
-
-        self.x = x
-        self.y = y
-    
-    def norm(self):
-        return sqrt(self.x*self.x + self.y*self.y)
-    def normsq(self):
-        return self.x*self.x + self.y*self.y
-
-
-
-def vectIntersection( v0,v1  ,v2,v3):
-    res = get_line_intersection(
-            v0.x,v0.y,
-            v1.x,v1.y,
-            v2.x,v2.y,
-            v3.x,v3.y)
-
-    if res:
-        return Vect(res[0],res[1])
-    else:
-        return False
-
 def get_line_intersection( p0_x,  p0_y,  p1_x,  p1_y, 
         p2_x,  p2_y,  p3_x,  p3_y):
     """
@@ -115,12 +57,22 @@ class ColorTexture():
 
 class StrechedTexture():
 
-    def __init__(self, texsciiFile,strech = 1):
+    def __init__(self, texsciiFile,strech = 1.0):
+
+        # [ [ Pixel.cchar/style ] ]
         self.texData = []
 
         self.strech = strech
          
-        
+        if texsciiFile.endswith(".png"):
+            pass
+        else:
+            self.fromTexcii(texsciiFile)
+
+    def fromTexcii(self,texsciiFile):
+        """
+        "
+        """
         with open(texsciiFile,'r') as texFile:
             buff = [line for line in texFile]     
         try:
