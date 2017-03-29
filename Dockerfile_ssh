@@ -3,7 +3,7 @@ FROM pypy:2
 MAINTAINER Fanf <fanf@fanf>
 
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get -y install openssh-server 
+RUN apt-get -y install openssh-server vim
 
 RUN pip install twisted 
 
@@ -15,12 +15,17 @@ COPY wolfenscii /wolfenscii
 RUN mkdir /var/run/sshd
 
 RUN useradd -m wolf
-RUN echo 'wolf:wolf' | chpasswd
+RUN passwd -d wolf
+#RUN echo 'wolf:wolf' | chpasswd
+
 
 #RUN chmod +x /wolfenscii/wolfenscii_client.py
 RUN echo '#!/bin/bash \ncd / && pypy /wolfenscii_client.py' > run.sh
 RUN chmod +x /run.sh
 RUN sed -i 's/^wolf.*/wolf:x:1000:1000::\/home\/wolf:\/run.sh/' /etc/passwd 
+RUN sed -i 's/^PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config 
+RUN sed -i 's/^UsePAM.*/UsePAM no/' /etc/ssh/sshd_config 
+
 
 EXPOSE 22
 CMD /usr/sbin/sshd -D 
