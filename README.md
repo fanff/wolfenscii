@@ -17,12 +17,16 @@ This method allow you to deploy wolfenscii in a container and make it availlable
 
 * First build the image
 ```bash
-docker build -t wspim . 
+docker build -t w -f Dockerfile_ssh .
 ```
 
 * Then run the container and forward the ssh port
 ```bash
-docker run -d --name wsp -p 2222:22 wspim
+docker run -d --name wolfenscii -p 2222:22 wspim
+
+# or
+
+docker run -it --rm -p 2222:22 w
 ```
 
 * Connect remotely, password is "wolf"
