@@ -10,16 +10,12 @@ RUN pip install twisted
 COPY wolfenscii_client.py /
 COPY wolfenscii /wolfenscii
 
-
-
 RUN mkdir /var/run/sshd
 
 RUN useradd -m wolf
 RUN passwd -d wolf
-#RUN echo 'wolf:wolf' | chpasswd
+#RUN echo 'root:root' | chpasswd
 
-
-#RUN chmod +x /wolfenscii/wolfenscii_client.py
 RUN echo '#!/bin/bash \ncd / && pypy /wolfenscii_client.py' > run.sh
 RUN chmod +x /run.sh
 RUN sed -i 's/^wolf.*/wolf:x:1000:1000::\/home\/wolf:\/run.sh/' /etc/passwd 
