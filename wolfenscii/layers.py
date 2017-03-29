@@ -5,6 +5,98 @@ from libVect import Pixel
 from wolfenscii import astar
 import random 
 
+    
+class SubMenuMain():
+    
+    def __init__(self,lines):
+        self.log = logging.getLogger("submain")
+        self.selected = 0
+
+        self.lines = lines
+    def select(self,lid):
+        self.selected = lid
+
+    def selectDown(self):
+        self.selected = (self.selected+1) % len(self.lines)
+    def selectUp(self):
+        self.selected = (self.selected-1) % len(self.lines)
+
+    def linesit(self):
+        return ((lid,self.selected==lid,line)for lid,line in enumerate(self.lines))
+
+    def getBoxed(self):
+
+        maxsize = max([len(line) for line in self.lines])
+        pre = "*  "
+        sus = "  *"
+        full = maxsize + len(pre)+len(sus)
+        
+        res = [[]]
+        for i in range(full):
+            res[0].append(Pixel(char="#",style=3))
+            
+        for lid,selected,line in self.linesit():
+            newline = []
+            for char in pre:
+                newline.append(Pixel(char,3))
+
+            for _ in range(full -len(pre)-len(sus)-len(line)):
+                newline.append(Pixel("*",1))
+
+            for char in line:
+                if selected:
+                    newline.append(Pixel(char,4))
+                else:
+                    newline.append(Pixel(char,5))
+            for char in sus:
+                newline.append(Pixel(char,3))
+
+            self.log.debug("new line len : %s",len(newline))
+            res.append(newline)
+        n = []
+        for i in range(full):
+            n.append(Pixel(char="#",style=3))
+        res.append(n)
+
+        return res,len(res),full
+
+class MenuLayout():
+    """
+
+    """
+    def __init__(self):
+        self.log = logging.getLogger("menulayout")
+
+        self.menuX = 200
+        self.menuY = 2
+        
+        self.currentSub = SubMenuMain(["enter","quit","options"])
+
+
+    def update(self,canvas):
+        try:
+            box,boxMR,boxMC = self.currentSub.getBoxed()
+            self.log.debug("boxMR %s, boxMC %s"%(boxMR,boxMC))
+            for i, ir in enumerate(canvas):
+                for j,p in enumerate(ir):
+                    if i<boxMR:
+                        if j<boxMC:
+                            #self.log.debug("box pix : %s %s",box[i][j].char,box[i][j].style)
+                            #p.char = "#"#box[i][j].char
+                            #p.style = 3#box[i][j].style
+                            canvas[i][j] = box[i][j]
+        except Exception as e:
+            self.log.exception("error updating menulayout")
+        
+    def getMain(self,):
+        pass
+
+    def getServerList(self,):
+        pass
+
+    def actionMapper(self,):
+        pass
+
 
 class MatrixSceneLayer():
 
@@ -17,7 +109,7 @@ class MatrixSceneLayer():
         self.texmapping = {}
         self.worldMap = worldMap
 
-        self.magicFactor = 0.5
+        self.magicFactor = 0.65
         
         # normal to player direction
         self.dirX = -1.0

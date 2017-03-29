@@ -37,9 +37,10 @@ def get_line_intersection( p0_x,  p0_y,  p1_x,  p1_y,
     return False # No collision
 
 
-class Pixel():
-    char = " "
-    style = 1
+class Pixel(object):
+    def __init__(self,char=" ",style=1):
+        self.char = char
+        self.style = style
 
 class ColorTexture():
 

@@ -12,7 +12,7 @@ from twisted.python import log
 from wolfenscii.libVect import ColorTexture, Pixel,StrechedTexture
 
 from math import pi,sqrt,floor
-from wolfenscii.layers import MatrixSceneLayer,DebugLayer
+from wolfenscii.layers import MatrixSceneLayer,DebugLayer,MenuLayout
 import logging
 
 import time
@@ -39,7 +39,7 @@ class CursesStdIO:
 
 class EngineOptions():
     FOV = 90.0
-    FPS = 100.0
+    FPS = 300.0
 
 
 
@@ -53,6 +53,8 @@ class ClearCanvas():
 
 
 
+STACK_MENU=0
+STACK_INGAME=1
 class GameState(object):
     """
     Contains :
@@ -62,7 +64,9 @@ class GameState(object):
     * List of layers
 
     """
+
     def __init__(self,rows,cols):
+        self.log = logging.getLogger("gamestate")
         self.canvas = []
         self.rows = rows
         self.cols= cols
@@ -108,17 +112,37 @@ class GameState(object):
         self.sceneLayer.texmapping[7] = StrechedTexture("wolfenscii/asset/test/tex3")
         self.sceneLayer.texmapping[8] = StrechedTexture("wolfenscii/asset/test/tex3")
         self.sceneLayer.texmapping[9] = StrechedTexture("wolfenscii/asset/test/tex3")
+        
+        self.stacks={
+                STACK_MENU:[
+                    self.keyEvent_menu,
+                    ClearCanvas(),
+                    MenuLayout(),
+                    self.debugLayer,
+
+                ],
 
 
-        self.layers = [
-                ClearCanvas(),
-                self.sceneLayer,
-                self.debugLayer]
+                STACK_INGAME : [
+                    self.keyEvent_ingame,
+                    ClearCanvas(),
+                    self.sceneLayer,
+                    self.debugLayer]
 
+                }
+
+        #current layers
+        self.setlayersStack(STACK_MENU)
 
         self.lastKey = ""
         self.lastMouse = ""
         self.__populateCanvas()
+    
+    def setlayersStack(self,stack):
+        _ = time.time()
+        self.layers = self.stacks[stack][1:]
+        self.keymapper = self.stacks[stack][0]
+        self.log.debug("switch layer %.5f",time.time() - _ )
 
     def resetCanvas(self,rows,cols):
         self.canvas = []
@@ -138,7 +162,8 @@ class GameState(object):
 
         Call every layer to fill the canvas.
         """
-        # play random player move
+
+        self.log.debug("updating game state")
 
         timeStart = time.time()
         for layer in self.layers:
@@ -163,12 +188,20 @@ class GameState(object):
 
 
     def keyEvent(self,key):
+        self.lastKey = key
+        self.keymapper(key)
+
+    def keyEvent_menu(self,key):
+        pass
+        if key in (27,):  
+            self.setlayersStack(STACK_INGAME)
+        
+    def keyEvent_ingame(self,key):
         """
         Dispatch key pressed as an action
 
         """
 
-        self.lastKey = key
         # 104 h
         # 105 i
         # 106 j
@@ -176,6 +209,8 @@ class GameState(object):
         # 108 l
         # 109 m
 
+        if key in (27,):  
+            self.setlayersStack(STACK_MENU)
         if key in (104,115):  # h
             self.sceneLayer.playerTurnLeft()
         elif key == 72: # H
@@ -259,7 +294,6 @@ class Screen(CursesStdIO):
         """ Input is ready! """
         try:
             curses.noecho()
-
             c = self.stdscr.getch() # read a character
 
             if c == curses.KEY_MOUSE:
@@ -285,15 +319,19 @@ class Screen(CursesStdIO):
         # safe way
         try:
             r,c = self.stdscr.getmaxyx()
+            _ = time.time()
 
             if r!=self.rows or c!=self.cols:
-                self.log
-                raise Exception("fdsljl")
-            self.canvas = self.gameState.update()
-            self.redisplayLines()
-        except:
-            self.rows, self.cols = self.stdscr.getmaxyx()
-            self.gameState.resetCanvas(self.rows-1,self.cols)
+                self.rows, self.cols = self.stdscr.getmaxyx()
+                self.gameState.resetCanvas(self.rows-1,self.cols)
+            else:
+                self.canvas = self.gameState.update()
+                self.redisplayLines()
+
+            self.log.debug("update redisplay %.5f",1.0/(time.time() - _ ))
+
+        except Exception as e:
+            self.log.exception("reseting canvas")
 
 
 if __name__ == '__main__':
@@ -306,7 +344,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.debug:
-        logging.basicConfig(filename="./log.log",level=logging.DEBUG)
+        logging.basicConfig(filename="./log.log",
+                format= '%(asctime)s:%(msecs)-12s:%(threadName)s:%(message)s',
+                level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.CRITICAL)
 
