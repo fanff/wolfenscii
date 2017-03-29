@@ -17,6 +17,9 @@ RUN passwd -d wolf
 
 RUN echo '#!/bin/sh \ncd / && pypy /wolfenscii_client.py' > run.sh
 RUN chmod +x /run.sh
+
+
+RUN sed -i 's/^root.*/root:x:0:0::\/root:\/usr\/sbin\/nologin/' /etc/passwd 
 RUN sed -i 's/^wolf.*/wolf:x:1000:1000::\/home\/wolf:\/run.sh/' /etc/passwd 
 RUN sed -i 's/^PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config 
 RUN sed -i 's/^UsePAM.*/UsePAM no/' /etc/ssh/sshd_config 
