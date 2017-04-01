@@ -1,18 +1,21 @@
+from twisted.internet import reactor,task
 import logging
 from math import sqrt,sin,cos,atan2,pi
 from libVect import Pixel
-
+import curses
 from wolfenscii import astar
 import random 
 
     
 class SubMenuMain():
     
-    def __init__(self,lines):
+    def __init__(self,actionsMap):
         self.log = logging.getLogger("submain")
         self.selected = 0
 
-        self.lines = lines
+        self.lines = [k for k,v in actionsMap]
+        self.actionsMap = {k:v for k,v in actionsMap}
+
     def select(self,lid):
         self.selected = lid
 
@@ -21,8 +24,18 @@ class SubMenuMain():
     def selectUp(self):
         self.selected = (self.selected-1) % len(self.lines)
 
+    def selectBack(self):
+        pass
+
+    def selectEnter(self):
+        """
+        """
+        self.log.debug("select enter")
+        self.actionsMap[self.lines[self.selected]]()
     def linesit(self):
         return ((lid,self.selected==lid,line)for lid,line in enumerate(self.lines))
+            
+            
 
     def getBoxed(self):
 
@@ -51,7 +64,7 @@ class SubMenuMain():
             for char in sus:
                 newline.append(Pixel(char,3))
 
-            self.log.debug("new line len : %s",len(newline))
+            #self.log.debug("new line len : %s",len(newline))
             res.append(newline)
         n = []
         for i in range(full):
@@ -60,23 +73,48 @@ class SubMenuMain():
 
         return res,len(res),full
 
+
+
 class MenuLayout():
     """
 
     """
-    def __init__(self):
+    def __init__(self,gameState):
         self.log = logging.getLogger("menulayout")
-
+        self.gameState= gameState
         self.menuX = 200
         self.menuY = 2
         
-        self.currentSub = SubMenuMain(["enter","quit","options"])
+        self.currentSub = SubMenuMain([
+            ("enter",self.enterGame),
+            ("options",self.nothing),
+            ("quit",self.quitGame),
+            
+            ])
+        
+        self.ac={ 
+             curses.KEY_DOWN: self.currentSub.selectDown,
+             ord("j"):self.currentSub.selectDown ,
 
+             curses.KEY_UP:self.currentSub.selectUp,
+             ord("k"): self.currentSub.selectUp,
+             
+             27: self.currentSub.selectBack,
+             curses.KEY_ENTER: self.currentSub.selectEnter,
+             10: self.currentSub.selectEnter,
+        }
+    
+    def nothing(self):
+        pass
+    def quitGame(self):
+        reactor.stop()
+    def enterGame(self):
+        self.gameState.setlayersStack(1)
 
     def update(self,canvas):
         try:
             box,boxMR,boxMC = self.currentSub.getBoxed()
-            self.log.debug("boxMR %s, boxMC %s"%(boxMR,boxMC))
+            #self.log.debug("boxMR %s, boxMC %s"%(boxMR,boxMC))
             for i, ir in enumerate(canvas):
                 for j,p in enumerate(ir):
                     if i<boxMR:
@@ -87,15 +125,12 @@ class MenuLayout():
                             canvas[i][j] = box[i][j]
         except Exception as e:
             self.log.exception("error updating menulayout")
-        
-    def getMain(self,):
-        pass
+    def actionMapper(self,keycode):
+        self.log.debug("mapper received %d",keycode)
 
-    def getServerList(self,):
-        pass
+        if keycode in self.ac:
+            self.ac[keycode]()
 
-    def actionMapper(self,):
-        pass
 
 
 class MatrixSceneLayer():

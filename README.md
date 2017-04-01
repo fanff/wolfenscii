@@ -22,7 +22,7 @@ docker build -t w -f Dockerfile_ssh .
 
 * Then run the container and forward the ssh port
 ```bash
-docker run -d --name wolfenscii -p 2222:22 wspim
+docker run -d --name wolfenscii -p 2222:22 w
 
 # or
 

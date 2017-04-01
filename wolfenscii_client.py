@@ -113,11 +113,12 @@ class GameState(object):
         self.sceneLayer.texmapping[8] = StrechedTexture("wolfenscii/asset/test/tex3")
         self.sceneLayer.texmapping[9] = StrechedTexture("wolfenscii/asset/test/tex3")
         
+        self.menuLayout = MenuLayout(self)
         self.stacks={
                 STACK_MENU:[
                     self.keyEvent_menu,
                     ClearCanvas(),
-                    MenuLayout(),
+                    self.menuLayout,
                     self.debugLayer,
 
                 ],
@@ -163,7 +164,7 @@ class GameState(object):
         Call every layer to fill the canvas.
         """
 
-        self.log.debug("updating game state")
+        #self.log.debug("updating game state")
 
         timeStart = time.time()
         for layer in self.layers:
@@ -192,9 +193,7 @@ class GameState(object):
         self.keymapper(key)
 
     def keyEvent_menu(self,key):
-        pass
-        if key in (27,):  
-            self.setlayersStack(STACK_INGAME)
+        self.menuLayout.actionMapper(key)
         
     def keyEvent_ingame(self,key):
         """
@@ -328,7 +327,7 @@ class Screen(CursesStdIO):
                 self.canvas = self.gameState.update()
                 self.redisplayLines()
 
-            self.log.debug("update redisplay %.5f",1.0/(time.time() - _ ))
+            #self.log.debug("update redisplay %.5f",1.0/(time.time() - _ ))
 
         except Exception as e:
             self.log.exception("reseting canvas")
