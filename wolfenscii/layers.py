@@ -16,6 +16,10 @@ class SubMenuMain():
         self.lines = [k for k,v in actionsMap]
         self.actionsMap = {k:v for k,v in actionsMap}
 
+        self.formatedLines={}
+        self.toilet()
+        self.log.debug(self.formatedLines) 
+
     def select(self,lid):
         self.selected = lid
 
@@ -35,37 +39,60 @@ class SubMenuMain():
     def linesit(self):
         return ((lid,self.selected==lid,line)for lid,line in enumerate(self.lines))
             
+    def simpleFormated(self):
+        self.formatedLines={}
+        for line in self.lines:
+            self.formatedLines[line]= [line]
+
+    def toilet(self):
+        import subprocess
+        self.formatedLines={}
+        for line in self.lines:
+            try:
+                res = subprocess.check_output(["toilet",line],)
+                self.log.debug(res)
+                self.formatedLines[line]= res.split('\n')
             
+            except Exception as e :
+                self.log.exception("errortoileting")
+                self.formatedLines[line]= [line]
 
     def getBoxed(self):
 
-        maxsize = max([len(line) for line in self.lines])
+        longopts= sorted(self.lines,key = lambda x : len(x))[-1]
+        maxsize=max(len(_) for _ in self.formatedLines[longopts])
         pre = "*  "
         sus = "  *"
         full = maxsize + len(pre)+len(sus)
+        self.log.debug("longest options %s. maxsie %s. full : %s",longopts,maxsize,full)
         
         res = [[]]
         for i in range(full):
             res[0].append(Pixel(char="#",style=3))
             
         for lid,selected,line in self.linesit():
-            newline = []
-            for char in pre:
-                newline.append(Pixel(char,3))
 
-            for _ in range(full -len(pre)-len(sus)-len(line)):
-                newline.append(Pixel("*",1))
 
-            for char in line:
-                if selected:
-                    newline.append(Pixel(char,4))
-                else:
-                    newline.append(Pixel(char,5))
-            for char in sus:
-                newline.append(Pixel(char,3))
 
-            #self.log.debug("new line len : %s",len(newline))
-            res.append(newline)
+            for subLine in self.formatedLines[line]:
+                newLine = []
+                for char in pre:
+                    newLine.append(Pixel(char,3))
+                
+                for _ in range(full -len(pre)-len(sus)-len(subLine)):
+                    newLine.append(Pixel("*",1))
+
+                for char in subLine:
+                    if selected:
+                        newLine.append(Pixel(char,4))
+                    else:
+                        newLine.append(Pixel(char,5))
+
+                for char in sus:
+                    newLine.append(Pixel(char,3))
+
+                #self.log.debug("new line len : %s",len(newline))
+                res.append(newLine)
         n = []
         for i in range(full):
             n.append(Pixel(char="#",style=3))
@@ -82,8 +109,8 @@ class MenuLayout():
     def __init__(self,gameState):
         self.log = logging.getLogger("menulayout")
         self.gameState= gameState
-        self.menuX = 200
-        self.menuY = 2
+        self.menuRow = 1
+        self.menuCol = 1
         
         self.currentSub = SubMenuMain([
             ("enter",self.enterGame),
@@ -114,15 +141,18 @@ class MenuLayout():
     def update(self,canvas):
         try:
             box,boxMR,boxMC = self.currentSub.getBoxed()
+            self.menuRow = len(canvas)/2- boxMR/2
+            self.menuCol = len(canvas[0])/2 - boxMC/2
             #self.log.debug("boxMR %s, boxMC %s"%(boxMR,boxMC))
             for i, ir in enumerate(canvas):
+                relR = i-self.menuRow
                 for j,p in enumerate(ir):
-                    if i<boxMR:
-                        if j<boxMC:
-                            #self.log.debug("box pix : %s %s",box[i][j].char,box[i][j].style)
-                            #p.char = "#"#box[i][j].char
-                            #p.style = 3#box[i][j].style
-                            canvas[i][j] = box[i][j]
+                    relC = j-self.menuCol
+                    if relR>=0 and relR<boxMR:
+                        if relC >= 0 and relC<boxMC:
+                            canvas[i][j] = box[relR][relC]
+
+
         except Exception as e:
             self.log.exception("error updating menulayout")
     def actionMapper(self,keycode):
