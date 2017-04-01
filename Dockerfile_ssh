@@ -2,8 +2,8 @@
 FROM pypy:2
 MAINTAINER Fanf <fanf@fanf>
 
-RUN apt-get update #&& apt-get upgrade -y
-RUN apt-get -y install openssh-server 
+RUN apt-get update 
+RUN apt-get -y install openssh-server toilet
 
 RUN pip install twisted 
 
