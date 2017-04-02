@@ -49,7 +49,8 @@ class SubMenuMain():
         self.formatedLines={}
         for line in self.lines:
             try:
-                res = subprocess.check_output(["toilet",line],)
+                font = "ascii12"
+                res = subprocess.check_output(["toilet","-f",font,line],)
                 self.log.debug(res)
                 self.formatedLines[line]= res.split('\n')
             
@@ -230,7 +231,11 @@ class MatrixSceneLayer():
             try:
                 #  //length of ray from one x or y-side to next x or y-side
                 deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX))
-                deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
+
+                if rayDirY!=0:
+                    deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
+                else:
+                    deltaDistY = 0.0
                  
                 # //what direction to step in x or y-direction (either +1 or -1)
                 stepX=0
@@ -321,6 +326,9 @@ class MatrixSceneLayer():
 
             except Exception as e:
                 self.log.exception("wow")
+                self.log.error("rayX,rayY : %+.1f , %+.1f ",rayPosX,rayPosY)
+                self.log.error("raydirX ,Y: %+.1f , %+.1f ",rayDirX,rayDirY)
+                self.log.error("deltaDistX: %+.1f ",deltaDistX)
         #endFOR
 
         return collideList

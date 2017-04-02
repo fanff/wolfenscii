@@ -117,7 +117,7 @@ class GameState(object):
         self.stacks={
                 STACK_MENU:[
                     self.keyEvent_menu,
-                    ClearCanvas(),
+                    #ClearCanvas(),
                     self.menuLayout,
                     self.debugLayer,
 
@@ -126,7 +126,7 @@ class GameState(object):
 
                 STACK_INGAME : [
                     self.keyEvent_ingame,
-                    ClearCanvas(),
+                    #ClearCanvas(),
                     self.sceneLayer,
                     self.debugLayer]
 
@@ -147,6 +147,7 @@ class GameState(object):
 
     def resetCanvas(self,rows,cols):
         self.canvas = []
+        ## TODO afinate canvas size
         self.rows = rows
         self.cols= cols
         self.__populateCanvas()
@@ -208,7 +209,8 @@ class GameState(object):
         # 108 l
         # 109 m
 
-        if key in (27,):  
+        if key in (27,): #escape 
+            self.log.info("received Escape")
             self.setlayersStack(STACK_MENU)
         if key in (104,115):  # h
             self.sceneLayer.playerTurnLeft()
@@ -299,6 +301,7 @@ class Screen(CursesStdIO):
                 _ , x,y,_,pld = curses.getmouse()
                 self.gameState.mouseEvent(x,y,pld)
             else:
+                self.log.info("received key %s",c)
                 self.gameState.keyEvent(c)
 
             if c == 113: # q
@@ -321,6 +324,7 @@ class Screen(CursesStdIO):
             _ = time.time()
 
             if r!=self.rows or c!=self.cols:
+                self.log.info("resetCanvas ")
                 self.rows, self.cols = self.stdscr.getmaxyx()
                 self.gameState.resetCanvas(self.rows-1,self.cols)
             else:
@@ -337,15 +341,15 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser(description='Wolfenscii')
-    parser.add_argument('-D', dest='debug', action='store_true',
-                        default=False,
+    parser.add_argument('-D', dest='debug', type=int,
+                        default=0,
                         help='Debug into ./log.log file by default')
 
     args = parser.parse_args()
-    if args.debug:
+    if args.debug!=0:
         logging.basicConfig(filename="./log.log",
-                format= '%(asctime)s:%(msecs)-12s:%(threadName)s:%(message)s',
-                level=logging.DEBUG)
+                format= '%(asctime)s:%(msecs)-14s:%(levelname)s:%(threadName)s:%(message)s',
+                level=args.debug)
     else:
         logging.basicConfig(level=logging.CRITICAL)
 
