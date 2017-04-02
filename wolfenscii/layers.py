@@ -216,7 +216,10 @@ class MatrixSceneLayer():
             
             rayDirX = self.dirX + (self.planeX * cameraX)
             rayDirY = self.dirY + (self.planeY * cameraX)
-            
+            if rayDirY == 0.0:
+                rayDirY = 0.00001
+            if rayDirX == 0.0:
+                rayDirX = 0.00001
             # map box
             mapX = int(self.posX)
             mapY = int(self.posY)
@@ -232,10 +235,7 @@ class MatrixSceneLayer():
                 #  //length of ray from one x or y-side to next x or y-side
                 deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX))
 
-                if rayDirY!=0:
-                    deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
-                else:
-                    deltaDistY = 0.0
+                deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
                  
                 # //what direction to step in x or y-direction (either +1 or -1)
                 stepX=0
