@@ -8,35 +8,7 @@
   <body  style='background: #000; margin: 0; padding: 0; width: 100%; height: 100%;'>
 
       <canvas id='display' style='width:100vw; height:100vh; display:block;' ></canvas>
-<script id="text-vertex-shader" type="x-shader/x-vertex">
-attribute vec4 a_position;
-attribute vec2 a_texcoord;
 
-uniform mat4 u_matrix;
-
-varying vec2 v_texcoord;
-
-void main() {
-  // Multiply the position by the matrix.
-  gl_Position = u_matrix * a_position;
-
-  // Pass the texcoord to the fragment shader.
-  v_texcoord = a_texcoord;
-}
-</script>
-<!-- fragment shader -->
-<script id="text-fragment-shader" type="x-shader/x-fragment">
-precision mediump float;
-
-// Passed in from the vertex shader.
-varying vec2 v_texcoord;
-
-uniform sampler2D u_texture;
-
-void main() {
-   gl_FragColor = texture2D(u_texture, v_texcoord);
-}
-</script>
   <script src="bundle.js"></script>
   </body>
 </html>
