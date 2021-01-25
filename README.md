@@ -1,6 +1,6 @@
 # Wolfenscii
 
-[Wolfenscii](https://github.com/fanff/wolfenscii) is a clone of the venerable Wolfenstein 3D using only ASCII characters for his graphical rendering. Wolfenscii is written in Python 2.
+[Wolfenscii](https://github.com/fanff/wolfenscii) is a clone of the venerable Wolfenstein 3D using only ASCII characters for his graphical rendering. Wolfenscii is written in Python 2. Try it [here](http://fanff.github.io/wolfenscii/js/).
 
 ## Minimal documentation
 
